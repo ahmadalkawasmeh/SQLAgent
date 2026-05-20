@@ -4,7 +4,6 @@ import os
 import re
 import sys
 import tomllib
-from datetime import datetime
 from html import escape
 from pathlib import Path
 from typing import Any
@@ -27,9 +26,7 @@ from zain_jordan_sql_agent import (  # noqa: E402
     create_chat_model,
     create_zain_sql_agent,
     list_tables,
-    run_sql,
     run_sql_agent,
-    table_row_counts,
 )
 
 
@@ -37,12 +34,12 @@ APP_DB_PATH = APP_DIR / "zain_customer_360_ai_demo.db"
 AGENT_PROMPT_VERSION = "customer-360-business-format-v2"
 
 APP_PAGES = [
-    ("AI Chat", "✦", "Ask business questions in natural language."),
-    ("Executive Analytics", "◈", "Dynamic dashboards and adjustable KPIs."),
+    ("AI Chat", "🗨︎", "Ask business questions in natural language."),
+    ("Executive Analytics", "▥", "Dynamic dashboards and adjustable KPIs."),
     ("Evidence Search", "⌕", "Retrieve evidence from the database and summarize it."),
     ("Customer 360", "◎", "Lookup a customer and inspect their history."),
     ("Prompt Library", "☰", "Reusable telecom analysis prompts."),
-    ("Help", "?", "Usage guide and deployment notes."),
+    ("Help", "?", "Usage guide and examples."),
 ]
 
 EXAMPLE_PROMPTS_BY_CATEGORY = {
@@ -90,9 +87,9 @@ st.set_page_config(
 
 def chart_palette() -> dict[str, str]:
     return {
-        "accent": "#059669",
+        "accent": "#674c99",
         "accent2": "#2563eb",
-        "accent3": "#7c3aed",
+        "accent3": "#8b5cf6",
         "danger": "#dc2626",
         "warning": "#d97706",
         "success": "#047857",
@@ -114,9 +111,9 @@ def build_css() -> str:
     --muted: #64748b;
     --line: #dde5ef;
     --soft-line: #edf2f7;
-    --accent: #059669;
-    --accent-dark: #047857;
-    --accent-soft: #ecfdf5;
+    --accent: #674c99;
+    --accent-dark: #513b7d;
+    --accent-soft: #f3effa;
     --danger: #dc2626;
     --warning: #d97706;
     --info: #2563eb;
@@ -128,6 +125,7 @@ def build_css() -> str:
     --input-bg: #ffffff;
     --chart-bg: #ffffff;
     --drawer-width: 348px;
+    --rail-width: 74px;
     --toggle-left: calc(var(--drawer-width) - 1.15rem);
     --radius-xl: 28px;
     --radius-lg: 20px;
@@ -144,9 +142,9 @@ def build_css() -> str:
         --muted: #a8b3c7;
         --line: rgba(255,255,255,0.10);
         --soft-line: rgba(255,255,255,0.07);
-        --accent: #31d29b;
-        --accent-dark: #11a879;
-        --accent-soft: rgba(49,210,155,0.12);
+        --accent: #9b7bd6;
+        --accent-dark: #c4b5fd;
+        --accent-soft: rgba(103,76,153,0.22);
         --danger: #fb7185;
         --warning: #fbbf24;
         --info: #60a5fa;
@@ -191,11 +189,11 @@ section[data-testid="stSidebar"] {{
     width: var(--drawer-width) !important;
     min-width: var(--drawer-width) !important;
     background:
-        radial-gradient(circle at 24px 12px, rgba(49,210,155,0.22), transparent 16rem),
+        radial-gradient(circle at 24px 12px, rgba(103,76,153,0.34), transparent 16rem),
         linear-gradient(180deg, var(--sidebar) 0%, var(--sidebar-2) 100%);
     border-right: 1px solid rgba(255,255,255,0.08);
     box-shadow: 20px 0 70px rgba(0,0,0,0.28);
-    transition: transform 260ms ease, margin-left 260ms ease, opacity 220ms ease;
+    transition: width 260ms ease, min-width 260ms ease, transform 260ms ease, margin-left 260ms ease, opacity 220ms ease;
     z-index: 999;
 }}
 
@@ -234,13 +232,20 @@ section[data-testid="stSidebar"] > div {{
 }}
 
 body:has(#drawer-closed:target) {{
-    --toggle-left: 0.75rem;
+    --toggle-left: calc(var(--rail-width) - 1.15rem);
 }}
 
 body:has(#drawer-closed:target) section[data-testid="stSidebar"] {{
-    transform: translateX(calc(-1 * var(--drawer-width)));
-    margin-left: calc(-1 * var(--drawer-width));
-    opacity: 0.96;
+    width: var(--rail-width) !important;
+    min-width: var(--rail-width) !important;
+    transform: translateX(0);
+    margin-left: 0;
+    opacity: 1;
+    box-shadow: 10px 0 34px rgba(0,0,0,0.18);
+}}
+
+body:has(#drawer-closed:target) section[data-testid="stSidebar"] > div {{
+    padding: 0 0.42rem 1rem;
 }}
 
 body:has(#drawer-closed:target) [data-testid="stMain"] .block-container,
@@ -256,6 +261,61 @@ body:has(#drawer-closed:target) .drawer-toggle.close {{
 
 body:has(#drawer-closed:target) .drawer-toggle.open {{
     display: grid;
+}}
+
+body:has(#drawer-closed:target) .drawer-brand {{
+    justify-content: center;
+    padding: 0 0 1rem;
+}}
+
+body:has(#drawer-closed:target) .drawer-brand > div:not(.drawer-logo),
+body:has(#drawer-closed:target) [data-testid="stSidebar"] .drawer-section-title,
+body:has(#drawer-closed:target) [data-testid="stSidebar"] .drawer-note {{
+    display: none !important;
+}}
+
+body:has(#drawer-closed:target) [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:has(.drawer-section),
+body:has(#drawer-closed:target) [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:has(.drawer-section) ~ div {{
+    display: none !important;
+}}
+
+body:has(#drawer-closed:target) .drawer-logo {{
+    width: 2.55rem;
+    height: 2.55rem;
+    border-radius: 0.9rem;
+}}
+
+body:has(#drawer-closed:target) .drawer-logo::before {{
+    width: 1.62rem;
+    height: 1.62rem;
+}}
+
+body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button {{
+    width: 3rem !important;
+    height: 3rem !important;
+    min-height: 3rem !important;
+    padding: 0 !important;
+    border-radius: 14px !important;
+    justify-content: center !important;
+    text-align: center !important;
+    margin: 0.28rem auto !important;
+}}
+
+body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button p {{
+    font-size: 0 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+}}
+
+body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button p::first-letter {{
+    color: #f8fafc !important;
+    font-size: 1.35rem !important;
+    font-weight: 900 !important;
+}}
+
+body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button[aria-label="Start a new chat"],
+body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button[aria-label="Open Evidence Search"] {{
+    display: none !important;
 }}
 
 [data-testid="stSidebar"] h1,
@@ -309,10 +369,19 @@ body:has(#drawer-closed:target) .drawer-toggle.open {{
     border-radius: 1rem;
     display: grid;
     place-items: center;
-    color: #06131f;
-    background: linear-gradient(135deg, #31d29b, #b8f7dd);
-    font-weight: 950;
-    box-shadow: 0 14px 34px rgba(49,210,155,0.22);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.13);
+    box-shadow: 0 14px 34px rgba(103,76,153,0.30);
+}}
+
+.drawer-logo::before {{
+    content: "";
+    width: 1.72rem;
+    height: 1.72rem;
+    display: block;
+    background: linear-gradient(135deg, #f8fafc, #aeb4bb);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -12 144 144'%3E%3Cpath d='M98 91C78 111 42 113 19 93C-4 73-4 35 17 17C39-2 77-5 99 16C120 36 121 72 101 91C83 108 50 108 30 91C10 75 10 46 28 30C46 14 76 12 94 29C112 46 112 73 96 88C81 102 56 102 41 89C26 76 27 54 41 42C55 30 77 29 90 42C103 55 102 74 90 86C79 96 61 96 50 87C40 78 40 62 50 53C60 44 76 44 84 54C91 63 88 77 78 85' fill='none' stroke='black' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -12 144 144'%3E%3Cpath d='M98 91C78 111 42 113 19 93C-4 73-4 35 17 17C39-2 77-5 99 16C120 36 121 72 101 91C83 108 50 108 30 91C10 75 10 46 28 30C46 14 76 12 94 29C112 46 112 73 96 88C81 102 56 102 41 89C26 76 27 54 41 42C55 30 77 29 90 42C103 55 102 74 90 86C79 96 61 96 50 87C40 78 40 62 50 53C60 44 76 44 84 54C91 63 88 77 78 85' fill='none' stroke='black' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }}
 
 .drawer-brand h2 {{
@@ -366,6 +435,7 @@ body:has(#drawer-closed:target) .drawer-toggle.open {{
     text-align: left;
     justify-content: flex-start;
     white-space: normal;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Noto Sans Symbols 2", "Segoe UI", sans-serif;
     font-weight: 760;
     font-size: 0.84rem;
 }}
@@ -378,14 +448,14 @@ body:has(#drawer-closed:target) .drawer-toggle.open {{
 }}
 
 [data-testid="stSidebar"] div.stButton > button:hover {{
-    border-color: rgba(49,210,155,0.26);
+    border-color: rgba(103,76,153,0.42);
     background: rgba(255,255,255,0.08);
 }}
 
 [data-testid="stSidebar"] div.stButton > button[kind="primary"] {{
-    background: rgba(49,210,155,0.16) !important;
-    border-color: rgba(49,210,155,0.42) !important;
-    box-shadow: inset 4px 0 0 #31d29b !important;
+    background: rgba(103,76,153,0.30) !important;
+    border-color: rgba(196,181,253,0.48) !important;
+    box-shadow: inset 4px 0 0 #c4b5fd !important;
 }}
 
 .sidebar-metrics {{
@@ -426,8 +496,9 @@ body:has(#drawer-closed:target) .drawer-toggle.open {{
     padding: 1.1rem 1.25rem;
     margin: 0 0 1rem;
     background:
-        radial-gradient(circle at 92% 10%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 15rem),
-        linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+        radial-gradient(circle at 92% 6%, color-mix(in srgb, var(--accent) 36%, transparent) 0%, transparent 17rem),
+        radial-gradient(circle at 8% 100%, color-mix(in srgb, var(--accent-dark) 16%, transparent) 0%, transparent 16rem),
+        linear-gradient(135deg, color-mix(in srgb, var(--surface) 92%, var(--accent) 8%) 0%, var(--surface-2) 58%, color-mix(in srgb, var(--surface-2) 86%, var(--accent) 14%) 100%);
     box-shadow: var(--shadow-sm);
 }}
 
@@ -923,58 +994,6 @@ def get_api_key_from_sources() -> str:
 
 
 @st.cache_data(show_spinner=False)
-def get_table_counts_df(db_path: str) -> pd.DataFrame:
-    conn = connect_sqlite(db_path)
-    return table_row_counts(conn)
-
-
-@st.cache_data(show_spinner=False)
-def get_database_summary(db_path: str) -> tuple[int, int, int, pd.DataFrame]:
-    conn = connect_sqlite(db_path)
-    tables = list_tables(conn)
-    counts = table_row_counts(conn)
-    total_customers = 0
-    customer_rows = counts.loc[counts["table_name"] == "customers", "row_count"]
-    if not customer_rows.empty:
-        total_customers = int(customer_rows.iloc[0])
-    total_rows = int(counts["row_count"].sum()) if not counts.empty else 0
-    return len(tables), total_customers, total_rows, counts.head(8)
-
-
-@st.cache_data(show_spinner=False)
-def get_table_preview(db_path: str, table_name: str, limit: int = 10) -> pd.DataFrame | None:
-    counts = get_table_counts_df(db_path)
-    valid_tables = set(counts["table_name"])
-    if table_name not in valid_tables:
-        return None
-    conn = connect_sqlite(db_path)
-    safe_table = table_name.replace('"', '""')
-    return pd.read_sql_query(f'SELECT * FROM "{safe_table}" LIMIT ?', conn, params=(int(limit),))
-
-
-@st.cache_data(show_spinner=False)
-def get_schema_catalog(db_path: str) -> pd.DataFrame:
-    conn = connect_sqlite(db_path)
-    table_names = list_tables(conn)["name"].tolist()
-    rows: list[dict[str, Any]] = []
-    counts = table_row_counts(conn).set_index("table_name")["row_count"].to_dict()
-    for table in table_names:
-        info = pd.read_sql_query(f'PRAGMA table_info("{table.replace(chr(34), chr(34)*2)}")', conn)
-        for _, col in info.iterrows():
-            rows.append(
-                {
-                    "table_name": table,
-                    "column_name": col["name"],
-                    "type": col["type"],
-                    "not_null": bool(col["notnull"]),
-                    "primary_key": bool(col["pk"]),
-                    "row_count": counts.get(table, 0),
-                }
-            )
-    return pd.DataFrame(rows)
-
-
-@st.cache_data(show_spinner=False)
 def get_filter_options(db_path: str) -> dict[str, list[str]]:
     conn = connect_sqlite(db_path)
     options: dict[str, list[str]] = {}
@@ -1442,7 +1461,7 @@ def render_loading_message() -> None:
             <div class="bubble assistant">
                 <span class="message-label">Customer 360 AI</span>
                 <div class="loading-row">
-                    <span>Inspecting schema and running SQL</span>
+                    <span>Reviewing customer data</span>
                     <span class="loading-dots"><span></span><span></span><span></span></span>
                 </div>
             </div>
@@ -1754,7 +1773,7 @@ def render_sidebar() -> str:
         st.markdown(
             """
             <div class="drawer-brand">
-                <div class="drawer-logo">Z</div>
+                <div class="drawer-logo" aria-hidden="true"></div>
                 <div>
                     <h2>Zain Customer 360 AI</h2>
                     <p>Customer insights, evidence search, and decision dashboard.</p>
@@ -1766,18 +1785,18 @@ def render_sidebar() -> str:
 
         st.markdown('<div class="drawer-section-title">Workspace</div>', unsafe_allow_html=True)
         for page, icon, _desc in APP_PAGES:
-            label = f"{page}  {icon}" if page == "Help" else f"{icon}  {page}"
+            label = f"{page}  {icon}" if page == "Help" else f"{icon}  {page}" if icon else page
             is_active = st.session_state.app_page == page
             if st.button(label, key=f"nav_{page}", use_container_width=True, type="primary" if is_active else "secondary"):
                 st.session_state.app_page = page
                 st.rerun()
 
         st.markdown('<div class="drawer-section"><div class="drawer-section-title">Quick action</div></div>', unsafe_allow_html=True)
-        if st.button("✦ Start a new chat", use_container_width=True):
+        if st.button("Start a new chat", use_container_width=True):
             reset_chat()
             st.session_state.app_page = "AI Chat"
             st.rerun()
-        if st.button("⌕ Open Evidence Search", use_container_width=True):
+        if st.button("Open Evidence Search", use_container_width=True):
             st.session_state.app_page = "Evidence Search"
             st.rerun()
         st.markdown(
@@ -1788,12 +1807,49 @@ def render_sidebar() -> str:
     return st.session_state.app_page
 
 
+def reset_analytics_filters(min_signup: str | None, max_signup: str | None) -> None:
+    reset_values = {
+        "analytics_cities": [],
+        "analytics_risks": [],
+        "analytics_top_n": 10,
+        "analytics_customer_segments": [],
+        "analytics_value_segments": [],
+        "analytics_min_arpu": 0.0,
+        "analytics_services": [],
+        "analytics_campaign_types": [],
+        "analytics_payment_statuses": [],
+        "analytics_signup_start": min_signup or "",
+        "analytics_signup_end": max_signup or "",
+    }
+    for key, value in reset_values.items():
+        st.session_state[key] = value
+
+
+def ensure_analytics_filter_defaults(min_signup: str | None, max_signup: str | None) -> None:
+    defaults = {
+        "analytics_cities": [],
+        "analytics_risks": [],
+        "analytics_top_n": 10,
+        "analytics_customer_segments": [],
+        "analytics_value_segments": [],
+        "analytics_min_arpu": 0.0,
+        "analytics_services": [],
+        "analytics_campaign_types": [],
+        "analytics_payment_statuses": [],
+        "analytics_signup_start": min_signup or "",
+        "analytics_signup_end": max_signup or "",
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+
 def render_chat_page(api_key_input: str, db_path: str, model_name: str) -> None:
     render_hero(
         "AI Chat",
         "Ask the Customer 360 database like an analyst",
-        "The guarded agent inspects schema, writes read-only SQLite, executes the query, and explains the result in business language.",
-        "Guarded SQL agent",
+        "Ask about churn, revenue, campaigns, complaints, billing, or customer experience and get a plain-language business answer.",
+        "Business assistant",
     )
 
     if not st.session_state.messages:
@@ -1824,7 +1880,7 @@ def render_chat_page(api_key_input: str, db_path: str, model_name: str) -> None:
         st.rerun()
     if submitted:
         if not api_key_input:
-            st.error("Add OPENAI_API_KEY in Streamlit secrets, environment variables, or .streamlit/secrets.toml before using the AI chat.")
+            st.error("AI answers are currently unavailable. Please ask the app administrator to configure access.")
         else:
             submit_prompt(prompt, db_path, model_name, api_key_input)
             st.rerun()
@@ -1840,27 +1896,33 @@ def render_dynamic_analytics_page(db_path: str, model_name: str, api_key: str) -
 
     options = get_filter_options(db_path)
     min_signup, max_signup = options.get("signup_date_bounds", [None, None])
+    ensure_analytics_filter_defaults(min_signup, max_signup)
 
-    with st.expander("Analysis parameters", expanded=True):
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            selected_cities = st.multiselect("Cities", options=options["cities"], default=[])
-            selected_risks = st.multiselect("Churn risk", options=options["risk_levels"], default=[])
-            top_n = st.slider("Top N", 5, 20, 10)
-        with c2:
-            selected_customer_segments = st.multiselect("Customer segments", options=options["customer_segments"], default=[])
-            selected_value_segments = st.multiselect("Value segments", options=options["value_segments"], default=[])
-            min_arpu = st.slider("Minimum ARPU (JOD)", 0.0, 100.0, 0.0, 1.0)
-        with c3:
-            selected_services = st.multiselect("Service type", options=options["service_types"], default=[])
-            selected_campaign_types = st.multiselect("Campaign type", options=options["campaign_types"], default=[])
-            selected_payment_statuses = st.multiselect("Billing status", options=options["payment_statuses"], default=[])
+    with st.expander("Analytics filters", expanded=True):
+        reset_col, _spacer = st.columns([1, 3])
+        with reset_col:
+            if st.button("Reset filters", use_container_width=True):
+                reset_analytics_filters(min_signup, max_signup)
+                st.rerun()
 
-        d1, d2 = st.columns(2)
-        with d1:
-            signup_start = st.text_input("Signup start date", value=min_signup or "", help="Use YYYY-MM-DD. Leave blank for no lower bound.")
-        with d2:
-            signup_end = st.text_input("Signup end date", value=max_signup or "", help="Use YYYY-MM-DD. Leave blank for no upper bound.")
+        customer_col, business_col, date_col = st.columns(3)
+        with customer_col:
+            st.markdown('<div class="section-title">Customer filters</div>', unsafe_allow_html=True)
+            selected_cities = st.multiselect("Cities", options=options["cities"], key="analytics_cities")
+            selected_customer_segments = st.multiselect("Customer segments", options=options["customer_segments"], key="analytics_customer_segments")
+            selected_value_segments = st.multiselect("Value segments", options=options["value_segments"], key="analytics_value_segments")
+            selected_risks = st.multiselect("Churn risk", options=options["risk_levels"], key="analytics_risks")
+            min_arpu = st.slider("Minimum ARPU (JOD)", 0.0, 100.0, step=1.0, key="analytics_min_arpu")
+        with business_col:
+            st.markdown('<div class="section-title">Business filters</div>', unsafe_allow_html=True)
+            selected_services = st.multiselect("Service type", options=options["service_types"], key="analytics_services")
+            selected_campaign_types = st.multiselect("Campaign type", options=options["campaign_types"], key="analytics_campaign_types")
+            selected_payment_statuses = st.multiselect("Billing status", options=options["payment_statuses"], key="analytics_payment_statuses")
+            top_n = st.slider("Results to show", 5, 20, key="analytics_top_n")
+        with date_col:
+            st.markdown('<div class="section-title">Date range</div>', unsafe_allow_html=True)
+            signup_start = st.text_input("Signup start date", help="Use YYYY-MM-DD. Leave blank for no lower bound.", key="analytics_signup_start")
+            signup_end = st.text_input("Signup end date", help="Use YYYY-MM-DD. Leave blank for no upper bound.", key="analytics_signup_end")
 
     data = get_dynamic_analytics_data(
         db_path=db_path,
@@ -2108,11 +2170,11 @@ def render_rag_search_page(db_path: str, model_name: str, api_key: str) -> None:
             rag_query = st.text_input("Search question or keywords", value=st.session_state.get("rag_query", "high risk churn complaints irbid"))
             st.session_state.rag_query = rag_query
         with c2:
-            selected_tables = st.multiselect("Tables", options=table_options, default=[])
-            require_all = st.checkbox("Require all terms", value=False)
+            selected_tables = st.multiselect("Search categories", options=table_options, default=[])
+            require_all = st.checkbox("Match every keyword", value=False)
         with c3:
-            limit_per_table = st.slider("Rows per table", 3, 20, 8)
-            max_results = st.slider("Max results", 10, 60, 30)
+            limit_per_table = st.slider("Results per category", 3, 20, 8)
+            max_results = st.slider("Maximum results", 10, 60, 30)
 
     search_clicked = st.button("Search database evidence", type="primary", use_container_width=True)
     if search_clicked or "rag_results" not in st.session_state:
@@ -2129,7 +2191,7 @@ def render_rag_search_page(db_path: str, model_name: str, api_key: str) -> None:
         results_df = st.session_state.rag_results
 
     if results_df.empty:
-        st.info("No evidence found. Try fewer terms, disable 'Require all terms', or select more tables.")
+        st.info("No evidence found. Try fewer keywords, turn off 'Match every keyword', or search more categories.")
         return
 
     st.markdown(
@@ -2147,11 +2209,27 @@ def render_rag_search_page(db_path: str, model_name: str, api_key: str) -> None:
             rag_question = st.text_area("Question to answer", value=rag_query, height=90)
             if st.button("Generate grounded answer", type="primary", use_container_width=True):
                 context = build_rag_context(results_df)
+                loading_slot = st.empty()
+                with loading_slot.container():
+                    st.markdown(
+                        """
+                        <div class="card-subtle">
+                            <div class="loading-row">
+                                <span>Generating grounded answer</span>
+                                <span class="loading-dots"><span></span><span></span><span></span></span>
+                            </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
                 try:
-                    answer = answer_with_rag(rag_question, context, model_name, api_key)
+                    with st.spinner("Generating grounded answer..."):
+                        answer = answer_with_rag(rag_question, context, model_name, api_key)
+                    loading_slot.empty()
                     st.markdown("#### Grounded answer")
                     st.markdown(answer)
                 except Exception as exc:
+                    loading_slot.empty()
                     st.error(f"Answer generation failed: {type(exc).__name__}: {exc}")
     else:
         st.warning("AI answers are currently unavailable, so this page is showing search results only.")
@@ -2194,9 +2272,9 @@ def render_customer_360_page(db_path: str) -> None:
         st.info("No customers matched the selected filters.")
         return
 
-    st.markdown('<div class="card"><div class="section-title">Matching customers</div>', unsafe_allow_html=True)
-    st.dataframe(results, use_container_width=True, hide_index=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    with st.container(border=True):
+        render_section_title("Matching customers")
+        st.dataframe(results, use_container_width=True, hide_index=True)
 
     labels = [
         f"{row.full_name} · ID {row.customer_id} · {row.city} · {row.risk_level or 'No risk'} · {row.msisdn or 'No MSISDN'}"
@@ -2219,113 +2297,35 @@ def render_customer_360_page(db_path: str) -> None:
 
     tab_overview, tab_billing, tab_support, tab_devices = st.tabs(["Overview", "Billing", "Support & complaints", "Devices"])
     with tab_overview:
-        st.markdown('<div class="card"><div class="section-title">Customer profile</div>', unsafe_allow_html=True)
-        profile_fields = [
-            "customer_id", "full_name", "nationality", "gender", "age_group", "city", "governorate", "customer_type",
-            "customer_segment", "preferred_language", "email", "phone_number", "signup_date", "status",
-        ]
-        profile_df = pd.DataFrame([{"field": field, "value": summary.get(field)} for field in profile_fields])
-        st.dataframe(profile_df, use_container_width=True, hide_index=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-        st.markdown('<div class="card"><div class="section-title">Subscriptions</div>', unsafe_allow_html=True)
-        st.dataframe(profile["subscriptions"], use_container_width=True, hide_index=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            render_section_title("Customer profile")
+            profile_fields = [
+                "customer_id", "full_name", "nationality", "gender", "age_group", "city", "governorate", "customer_type",
+                "customer_segment", "preferred_language", "email", "phone_number", "signup_date", "status",
+            ]
+            profile_df = pd.DataFrame([{"field": field, "value": summary.get(field)} for field in profile_fields])
+            st.dataframe(profile_df, use_container_width=True, hide_index=True)
+        with st.container(border=True):
+            render_section_title("Subscriptions")
+            st.dataframe(profile["subscriptions"], use_container_width=True, hide_index=True)
     with tab_billing:
-        st.markdown('<div class="card"><div class="section-title">Recent invoices</div>', unsafe_allow_html=True)
-        st.dataframe(profile["invoices"], use_container_width=True, hide_index=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            render_section_title("Recent invoices")
+            st.dataframe(profile["invoices"], use_container_width=True, hide_index=True)
     with tab_support:
         left, right = st.columns(2)
         with left:
-            st.markdown('<div class="card"><div class="section-title">Complaints</div>', unsafe_allow_html=True)
-            st.dataframe(profile["complaints"], use_container_width=True, hide_index=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            with st.container(border=True):
+                render_section_title("Complaints")
+                st.dataframe(profile["complaints"], use_container_width=True, hide_index=True)
         with right:
-            st.markdown('<div class="card"><div class="section-title">Support interactions</div>', unsafe_allow_html=True)
-            st.dataframe(profile["support"], use_container_width=True, hide_index=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            with st.container(border=True):
+                render_section_title("Support interactions")
+                st.dataframe(profile["support"], use_container_width=True, hide_index=True)
     with tab_devices:
-        st.markdown('<div class="card"><div class="section-title">Devices</div>', unsafe_allow_html=True)
-        st.dataframe(profile["devices"], use_container_width=True, hide_index=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-
-def render_manual_sql_page(db_path: str) -> None:
-    render_hero(
-        "Manual SQL",
-        "Run guarded read-only SQL",
-        "Use this page when you already know the SQL you want. Only SELECT and WITH queries are allowed.",
-        "Read-only execution",
-    )
-
-    templates = {
-        "Top cities": "SELECT city, COUNT(*) AS total_customers\nFROM customers\nGROUP BY city\nORDER BY total_customers DESC\nLIMIT 10;",
-        "Churn mix": "SELECT risk_level, COUNT(*) AS customers, ROUND(AVG(churn_score), 3) AS avg_churn_score\nFROM customer_churn_scores\nGROUP BY risk_level\nORDER BY customers DESC;",
-        "Campaign conversion": "SELECT c.campaign_name, c.campaign_type, COUNT(r.response_id) AS total_sent, SUM(r.converted_flag) AS total_converted, ROUND(100.0 * SUM(r.converted_flag) / COUNT(r.response_id), 2) AS conversion_rate\nFROM campaigns c\nJOIN customer_campaign_responses r ON c.campaign_id = r.campaign_id\nGROUP BY c.campaign_id, c.campaign_name, c.campaign_type\nORDER BY conversion_rate DESC\nLIMIT 10;",
-        "Complaint severity": "SELECT complaint_category, severity, COUNT(*) AS complaints\nFROM complaints\nGROUP BY complaint_category, severity\nORDER BY complaints DESC;",
-    }
-    chosen_template = st.selectbox("Load a query template", options=list(templates.keys()))
-    if st.button("Use selected template", use_container_width=True):
-        st.session_state.manual_sql = templates[chosen_template]
-        st.rerun()
-
-    query = st.text_area("SQL query", value=st.session_state.get("manual_sql", templates[chosen_template]), height=220)
-    st.session_state.manual_sql = query
-    run_clicked = st.button("Run SQL", type="primary", use_container_width=True)
-    if run_clicked:
-        try:
-            conn = connect_sqlite(db_path)
-            result_df = run_sql(conn, query)
-            st.success(f"Query returned {len(result_df):,} rows.")
-            st.dataframe(result_df, use_container_width=True, hide_index=True)
-            st.download_button("Download result CSV", result_df.to_csv(index=False).encode("utf-8"), "sql_result.csv", "text/csv", use_container_width=True)
-            st.session_state.sql_history.insert(0, {"time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "query": query, "rows": len(result_df)})
-            st.session_state.sql_history = st.session_state.sql_history[:10]
-        except Exception as exc:
-            st.error(f"Query failed: {type(exc).__name__}: {exc}")
-
-    if st.session_state.sql_history:
-        with st.expander("Recent manual SQL history"):
-            history_df = pd.DataFrame(st.session_state.sql_history)
-            st.dataframe(history_df, use_container_width=True, hide_index=True)
-
-
-def render_data_browser_page(db_path: str) -> None:
-    render_hero(
-        "Data Browser",
-        "Explore schemas and table samples",
-        "Use the schema search to find tables and columns before asking the AI agent or writing manual SQL.",
-        "Schema explorer",
-    )
-    counts_df = get_table_counts_df(db_path)
-    catalog_df = get_schema_catalog(db_path)
-
-    c1, c2 = st.columns([1, 1.8])
-    with c1:
-        st.markdown('<div class="card"><div class="section-title">Table row counts</div>', unsafe_allow_html=True)
-        st.dataframe(counts_df, use_container_width=True, hide_index=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-    with c2:
-        st.markdown('<div class="card"><div class="section-title">Schema catalog</div>', unsafe_allow_html=True)
-        schema_search = st.text_input("Search table or column", placeholder="Example: churn, invoice, city, msisdn")
-        filtered_catalog = catalog_df.copy()
-        if schema_search.strip():
-            mask = (
-                filtered_catalog["table_name"].str.contains(schema_search, case=False, na=False)
-                | filtered_catalog["column_name"].str.contains(schema_search, case=False, na=False)
-                | filtered_catalog["type"].astype(str).str.contains(schema_search, case=False, na=False)
-            )
-            filtered_catalog = filtered_catalog[mask]
-        st.dataframe(filtered_catalog, use_container_width=True, hide_index=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="card"><div class="section-title">Preview records</div>', unsafe_allow_html=True)
-    table_name = st.selectbox("Preview table", options=counts_df["table_name"].tolist(), key="main_table_preview")
-    preview_limit = st.slider("Preview rows", 5, 100, 20)
-    preview_df = get_table_preview(db_path, table_name, limit=int(preview_limit))
-    if preview_df is not None:
-        st.dataframe(preview_df, use_container_width=True, hide_index=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            render_section_title("Devices")
+            st.dataframe(profile["devices"], use_container_width=True, hide_index=True)
 
 
 def render_prompt_library_page() -> None:
@@ -2336,23 +2336,23 @@ def render_prompt_library_page() -> None:
         "Prompt accelerator",
     )
     for category, prompts in EXAMPLE_PROMPTS_BY_CATEGORY.items():
-        st.markdown(f'<div class="card"><div class="section-title">{safe_html(category)}</div>', unsafe_allow_html=True)
-        cols = st.columns(3)
-        for idx, prompt in enumerate(prompts):
-            with cols[idx % 3]:
-                if st.button(prompt, key=f"library_{category}_{idx}", use_container_width=True):
-                    st.session_state.pending_prompt = prompt
-                    st.session_state.app_page = "AI Chat"
-                    st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            render_section_title(category)
+            cols = st.columns(3)
+            for idx, prompt in enumerate(prompts):
+                with cols[idx % 3]:
+                    if st.button(prompt, key=f"library_{category}_{idx}", use_container_width=True):
+                        st.session_state.pending_prompt = prompt
+                        st.session_state.app_page = "AI Chat"
+                        st.rerun()
 
 
 def render_help_page() -> None:
     render_hero(
         "Help",
-        "How to use and deploy this app",
-        "This Streamlit app bundles AI chat, dynamic analytics, evidence search, customer lookup, and reusable telecom prompts.",
-        "Deployment-ready",
+        "How to use Customer 360 AI",
+        "Use this guide to pick the right page, ask better questions, and interpret the main customer and revenue signals.",
+        "User guide",
     )
     st.markdown(
         """
@@ -2367,18 +2367,32 @@ def render_help_page() -> None:
             </div>
         </div>
         <div class="card">
-            <div class="section-title">Streamlit deployment checklist</div>
+            <div class="section-title">What each page is for</div>
             <div class="page-copy">
-                Add <code>OPENAI_API_KEY</code> in Streamlit secrets or environment variables.<br>
-                Keep <code>app.py</code>, <code>zain_jordan_sql_agent.py</code>, and <code>zain_customer_360_ai_demo.db</code> in the same app directory.<br>
-                Run locally with <code>streamlit run app.py</code>.
+                <strong>AI Chat</strong> answers business questions in natural language.<br>
+                <strong>Executive Analytics</strong> shows trends, risks, campaign results, billing status, and customer slices.<br>
+                <strong>Evidence Search</strong> finds matching records before generating a grounded answer.<br>
+                <strong>Customer 360</strong> opens a single customer's profile, billing, support, and device history.<br>
+                <strong>Prompt Library</strong> gives reusable questions for churn, revenue, campaigns, support, and network analysis.
             </div>
         </div>
         <div class="card">
-            <div class="section-title">Safety model</div>
+            <div class="section-title">How to interpret key signals</div>
             <div class="page-copy">
-                The AI assistant is instructed to answer only from database facts and avoid changing data.
-                Evidence Search retrieves records first and then grounds the answer in those snippets.
+                <strong>Churn risk</strong> highlights customers who may need retention attention.<br>
+                <strong>ARPU</strong> shows average monthly revenue and helps prioritize value segments.<br>
+                <strong>Billing status</strong> helps identify collection pressure and overdue exposure.<br>
+                <strong>Campaign conversion</strong> shows which offers are working best for each audience.<br>
+                <strong>Support sentiment and complaints</strong> point to experience issues that can affect loyalty.
+            </div>
+        </div>
+        <div class="card">
+            <div class="section-title">Example questions</div>
+            <div class="page-copy">
+                Which cities have the most high-risk churn customers?<br>
+                Which campaign audience should we retarget next?<br>
+                Which billing statuses need immediate attention?<br>
+                What complaints are most common among high-value customers?
             </div>
         </div>
         """,
@@ -2396,7 +2410,6 @@ def init_session() -> None:
         "pending_prompt": "",
         "app_page": "AI Chat",
         "scroll_to_latest": False,
-        "sql_history": [],
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -2433,10 +2446,6 @@ def main() -> None:
         render_rag_search_page(default_db, model_name, api_key)
     elif active_page == "Customer 360":
         render_customer_360_page(default_db)
-    elif active_page == "Manual SQL":
-        render_manual_sql_page(default_db)
-    elif active_page == "Data Browser":
-        render_data_browser_page(default_db)
     elif active_page == "Prompt Library":
         render_prompt_library_page()
     else:
