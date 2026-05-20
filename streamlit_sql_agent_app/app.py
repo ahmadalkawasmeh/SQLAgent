@@ -93,8 +93,19 @@ html,
 body,
 [data-testid="stAppViewContainer"],
 [data-testid="stMain"],
-[data-testid="stSidebar"] {
+[data-testid="stSidebar"],
+button,
+input,
+textarea,
+select,
+[data-baseweb],
+[role="button"] {
     color-scheme: light !important;
+}
+
+html,
+body {
+    background: var(--page) !important;
 }
 
 [data-testid="stAppViewContainer"],
@@ -648,9 +659,16 @@ div[data-testid="stForm"] button {
 .main div.stButton > button,
 div[data-testid="stForm"] button {
     border: 1px solid var(--line);
-    background: #ffffff;
-    color: var(--ink);
+    background: #ffffff !important;
+    color: var(--ink) !important;
     box-shadow: 0 6px 16px rgba(15, 23, 42, 0.035);
+}
+
+.main div.stButton > button *,
+.main div.stButton > button p,
+div[data-testid="stForm"] button *,
+div[data-testid="stForm"] button p {
+    color: inherit !important;
 }
 
 .main div.stButton > button:hover,
@@ -666,9 +684,122 @@ button[kind="primary"] {
     border-color: var(--brand) !important;
 }
 
+button[kind="secondary"] {
+    background: #ffffff !important;
+    color: var(--ink) !important;
+    border-color: var(--line) !important;
+}
+
+button[kind="secondary"] *,
+button[kind="secondary"] p {
+    color: var(--ink) !important;
+}
+
 button[kind="primary"]:hover {
     background: var(--brand-dark) !important;
     border-color: var(--brand-dark) !important;
+}
+
+button[kind="primary"] *,
+button[kind="primary"] p {
+    color: #ffffff !important;
+}
+
+div[data-baseweb="select"] > div,
+div[data-baseweb="input"],
+div[data-baseweb="textarea"] {
+    background-color: #ffffff !important;
+    color: var(--ink) !important;
+}
+
+div[data-baseweb="select"] span,
+div[data-baseweb="select"] div,
+div[data-baseweb="input"] input,
+div[data-baseweb="textarea"] textarea {
+    color: var(--ink) !important;
+}
+
+div[data-baseweb="popover"],
+div[data-baseweb="menu"] {
+    color-scheme: light !important;
+}
+
+div[data-baseweb="popover"] *,
+div[data-baseweb="menu"] * {
+    color-scheme: light !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: light !important;
+    }
+
+    html,
+    body,
+    .stApp,
+    [data-testid="stAppViewContainer"],
+    [data-testid="stMain"] {
+        background: var(--page) !important;
+        color: var(--ink) !important;
+        color-scheme: light !important;
+    }
+
+    .app-header,
+    .content-card,
+    .analytics-card,
+    .chart-card,
+    div[data-testid="stForm"],
+    .bubble.assistant {
+        background: #ffffff !important;
+        border-color: var(--line) !important;
+        color: var(--ink) !important;
+    }
+
+    .brand-title,
+    .page-title,
+    .welcome-copy h2,
+    .analytics-value,
+    .chart-title,
+    .composer-title,
+    .agent-answer,
+    .loading-row {
+        color: var(--ink) !important;
+    }
+
+    .brand-subtitle,
+    .page-copy,
+    .welcome-copy p,
+    .analytics-caption,
+    .message-label {
+        color: var(--muted) !important;
+    }
+
+    .main div.stButton > button,
+    div[data-testid="stForm"] button,
+    button[kind="secondary"],
+    div[data-testid="stTextArea"] textarea,
+    div[data-baseweb="select"] > div,
+    div[data-baseweb="input"],
+    div[data-baseweb="textarea"] {
+        background: #ffffff !important;
+        color: var(--ink) !important;
+        border-color: var(--line) !important;
+    }
+
+    .main div.stButton > button *,
+    .main div.stButton > button p,
+    div[data-testid="stForm"] button *,
+    div[data-testid="stForm"] button p,
+    button[kind="secondary"] *,
+    button[kind="secondary"] p {
+        color: var(--ink) !important;
+    }
+
+    button[kind="primary"],
+    button[kind="primary"] *,
+    button[kind="primary"] p {
+        color: #ffffff !important;
+    }
 }
 
 .suggestion-title {
