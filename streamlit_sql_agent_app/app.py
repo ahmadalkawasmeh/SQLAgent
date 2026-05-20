@@ -40,7 +40,6 @@ MODEL_OPTIONS = [
     "gpt-4o-mini",
 ]
 
-
 st.set_page_config(
     page_title="Zain Jordan SQL Agent",
     page_icon="Z",
@@ -52,6 +51,7 @@ st.set_page_config(
 CUSTOM_CSS = """
 <style>
 :root {
+    color-scheme: light;
     --page: #f8fafc;
     --canvas: #ffffff;
     --ink: #0f172a;
@@ -86,6 +86,15 @@ footer,
 .stApp {
     background: var(--page);
     color: var(--ink);
+    color-scheme: light;
+}
+
+html,
+body,
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"],
+[data-testid="stSidebar"] {
+    color-scheme: light !important;
 }
 
 [data-testid="stAppViewContainer"],
