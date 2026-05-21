@@ -293,6 +293,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"], 
 section[data-testid="stSidebar"] {{
     width: var(--drawer-width) !important;
     min-width: var(--drawer-width) !important;
+    max-width: var(--drawer-width) !important;
     background:
         radial-gradient(circle at 24px 12px, rgba(103,76,153,0.34), transparent 16rem),
         linear-gradient(180deg, var(--sidebar) 0%, var(--sidebar-2) 100%);
@@ -304,6 +305,27 @@ section[data-testid="stSidebar"] {{
 
 section[data-testid="stSidebar"] > div {{
     padding: 0 0.95rem 1.35rem;
+}}
+
+section[data-testid="stSidebar"][aria-expanded="false"],
+section[data-testid="stSidebar"][data-collapsed="true"] {{
+    width: var(--rail-width) !important;
+    min-width: var(--rail-width) !important;
+    max-width: var(--rail-width) !important;
+    transform: translateX(0) !important;
+    margin-left: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    box-shadow: 10px 0 34px rgba(0,0,0,0.18);
+}}
+
+section[data-testid="stSidebar"][aria-expanded="false"] > div,
+section[data-testid="stSidebar"][data-collapsed="true"] > div {{
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    padding: 0 0.42rem 1rem;
 }}
 
 .drawer-toggle {{
@@ -343,6 +365,7 @@ body:has(#drawer-closed:target) {{
 body:has(#drawer-closed:target) section[data-testid="stSidebar"] {{
     width: var(--rail-width) !important;
     min-width: var(--rail-width) !important;
+    max-width: var(--rail-width) !important;
     transform: translateX(0);
     margin-left: 0;
     opacity: 1;
@@ -375,12 +398,22 @@ body:has(#drawer-closed:target) .drawer-brand {{
 
 body:has(#drawer-closed:target) .drawer-brand > div:not(.drawer-logo),
 body:has(#drawer-closed:target) [data-testid="stSidebar"] .drawer-section-title,
-body:has(#drawer-closed:target) [data-testid="stSidebar"] .drawer-note {{
+body:has(#drawer-closed:target) [data-testid="stSidebar"] .drawer-note,
+section[data-testid="stSidebar"][aria-expanded="false"] .drawer-brand > div:not(.drawer-logo),
+section[data-testid="stSidebar"][aria-expanded="false"] .drawer-section-title,
+section[data-testid="stSidebar"][aria-expanded="false"] .drawer-note,
+section[data-testid="stSidebar"][data-collapsed="true"] .drawer-brand > div:not(.drawer-logo),
+section[data-testid="stSidebar"][data-collapsed="true"] .drawer-section-title,
+section[data-testid="stSidebar"][data-collapsed="true"] .drawer-note {{
     display: none !important;
 }}
 
 body:has(#drawer-closed:target) [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:has(.drawer-section),
-body:has(#drawer-closed:target) [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:has(.drawer-section) ~ div {{
+body:has(#drawer-closed:target) [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:has(.drawer-section) ~ div,
+section[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stVerticalBlock"] > div:has(.drawer-section),
+section[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stVerticalBlock"] > div:has(.drawer-section) ~ div,
+section[data-testid="stSidebar"][data-collapsed="true"] [data-testid="stVerticalBlock"] > div:has(.drawer-section),
+section[data-testid="stSidebar"][data-collapsed="true"] [data-testid="stVerticalBlock"] > div:has(.drawer-section) ~ div {{
     display: none !important;
 }}
 
@@ -395,7 +428,9 @@ body:has(#drawer-closed:target) .drawer-logo::before {{
     height: 1.62rem;
 }}
 
-body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button {{
+body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button,
+section[data-testid="stSidebar"][aria-expanded="false"] div.stButton > button,
+section[data-testid="stSidebar"][data-collapsed="true"] div.stButton > button {{
     width: 3rem !important;
     height: 3rem !important;
     min-height: 3rem !important;
@@ -406,20 +441,28 @@ body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button 
     margin: 0.28rem auto !important;
 }}
 
-body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button p {{
+body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button p,
+section[data-testid="stSidebar"][aria-expanded="false"] div.stButton > button p,
+section[data-testid="stSidebar"][data-collapsed="true"] div.stButton > button p {{
     font-size: 0 !important;
     line-height: 1 !important;
     text-align: center !important;
 }}
 
-body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button p::first-letter {{
+body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button p::first-letter,
+section[data-testid="stSidebar"][aria-expanded="false"] div.stButton > button p::first-letter,
+section[data-testid="stSidebar"][data-collapsed="true"] div.stButton > button p::first-letter {{
     color: #f8fafc !important;
     font-size: 1.35rem !important;
     font-weight: 900 !important;
 }}
 
 body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button[aria-label="Start a new chat"],
-body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button[aria-label="Open Evidence Search"] {{
+body:has(#drawer-closed:target) [data-testid="stSidebar"] div.stButton > button[aria-label="Open Evidence Search"],
+section[data-testid="stSidebar"][aria-expanded="false"] div.stButton > button[aria-label="Start a new chat"],
+section[data-testid="stSidebar"][aria-expanded="false"] div.stButton > button[aria-label="Open Evidence Search"],
+section[data-testid="stSidebar"][data-collapsed="true"] div.stButton > button[aria-label="Start a new chat"],
+section[data-testid="stSidebar"][data-collapsed="true"] div.stButton > button[aria-label="Open Evidence Search"] {{
     display: none !important;
 }}
 
