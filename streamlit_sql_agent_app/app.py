@@ -36,6 +36,7 @@ AGENT_PROMPT_VERSION = "customer-360-business-format-v2"
 APP_PAGES = [
     ("AI Chat", "🗨︎", "Ask business questions in natural language."),
     ("Executive Analytics", "▥", "Dynamic dashboards and adjustable KPIs."),
+    ("Action Center", "⚑", "Prioritized retention, collections, CX, and network actions."),
     ("Evidence Search", "⌕", "Retrieve evidence from the database and summarize it."),
     ("Customer 360", "◎", "Lookup a customer and inspect their history."),
     ("Prompt Library", "☰", "Reusable telecom analysis prompts."),
@@ -71,6 +72,110 @@ EXAMPLE_PROMPTS_BY_CATEGORY = {
 }
 
 FLAT_EXAMPLE_PROMPTS = [prompt for prompts in EXAMPLE_PROMPTS_BY_CATEGORY.values() for prompt in prompts]
+
+
+EVIDENCE_TABLE_LABELS = {
+    "customers": "Customer profile",
+    "customer_churn_scores": "Churn risk signal",
+    "customer_value_segments": "Customer value",
+    "customer_monthly_summary": "Monthly behavior",
+    "customer_satisfaction": "Satisfaction feedback",
+    "support_interactions": "Support interaction",
+    "complaints": "Complaint record",
+    "campaigns": "Campaign definition",
+    "customer_campaign_responses": "Campaign response",
+    "invoices": "Invoice",
+    "invoice_items": "Invoice line item",
+    "payments": "Payment",
+    "transactions": "Transaction",
+    "topups": "Top-up",
+    "subscriptions": "Subscription",
+    "plans": "Plan",
+    "addons": "Add-on catalogue",
+    "subscription_addons": "Customer add-on",
+    "devices": "Device",
+    "sim_cards": "SIM card",
+    "data_usage_sessions": "Data usage session",
+    "call_detail_records": "Call usage",
+    "sms_usage": "SMS usage",
+    "roaming_usage": "Roaming usage",
+    "network_towers": "Network tower",
+    "network_events": "Network event",
+    "accounts": "Billing account",
+}
+
+EVIDENCE_TABLE_AREAS = {
+    "Customer & churn": ["customers", "customer_churn_scores", "customer_value_segments", "customer_monthly_summary", "customer_satisfaction"],
+    "Billing & payments": ["accounts", "invoices", "invoice_items", "payments", "transactions", "topups"],
+    "Support & complaints": ["complaints", "support_interactions", "customer_satisfaction"],
+    "Campaigns & offers": ["campaigns", "customer_campaign_responses", "addons", "subscription_addons"],
+    "Usage & services": ["subscriptions", "plans", "devices", "sim_cards", "data_usage_sessions", "call_detail_records", "sms_usage", "roaming_usage"],
+    "Network": ["network_towers", "network_events"],
+}
+
+EVIDENCE_DISPLAY_FIELDS = {
+    "customers": ["customer_id", "full_name", "city", "customer_segment", "status", "phone_number", "signup_date"],
+    "customer_churn_scores": ["customer_id", "risk_level", "churn_score", "main_risk_reason", "recommended_action", "score_month"],
+    "customer_value_segments": ["customer_id", "value_segment", "arpu_jod", "total_revenue_6m_jod", "lifetime_months"],
+    "customer_monthly_summary": ["customer_id", "summary_month", "total_revenue_jod", "data_used_gb", "support_interactions_count", "complaints_count", "payment_delay_days", "churn_score"],
+    "customer_satisfaction": ["customer_id", "survey_date", "nps_score", "csat_score", "sentiment", "feedback_text"],
+    "complaints": ["customer_id", "complaint_date", "complaint_category", "severity", "status", "complaint_description", "compensation_amount_jod"],
+    "support_interactions": ["customer_id", "interaction_datetime", "channel", "reason_category", "issue_type", "priority", "resolution_status", "customer_sentiment", "resolution_time_minutes"],
+    "campaigns": ["campaign_id", "campaign_name", "campaign_type", "target_segment", "offer_description", "channel", "start_date", "end_date"],
+    "customer_campaign_responses": ["customer_id", "campaign_id", "sent_date", "channel", "response_status", "converted_flag", "revenue_generated_jod"],
+    "invoices": ["invoice_id", "account_id", "issue_date", "due_date", "payment_status", "days_overdue", "total_amount_jod"],
+    "payments": ["customer_id", "payment_date", "payment_method", "amount_jod", "payment_status", "channel"],
+    "transactions": ["customer_id", "transaction_datetime", "transaction_type", "amount_jod", "channel", "status", "reference_number"],
+    "topups": ["customer_id", "subscription_id", "topup_date", "amount_jod", "channel", "payment_method", "promotion_applied_flag"],
+    "subscriptions": ["customer_id", "subscription_id", "msisdn", "service_type", "status", "activation_date", "contract_end_date"],
+    "plans": ["plan_name", "plan_category", "service_type", "monthly_fee_jod", "data_allowance_gb", "technology", "contract_months"],
+    "devices": ["customer_id", "device_type", "brand", "model", "os", "device_5g_capable_flag", "installment_flag"],
+    "data_usage_sessions": ["subscription_id", "session_start_time", "data_used_mb", "network_type", "app_category", "roaming_flag", "cost_jod"],
+    "call_detail_records": ["subscription_id", "call_start_time", "duration_seconds", "call_type", "destination_type", "destination_country", "roaming_flag", "cost_jod"],
+    "roaming_usage": ["subscription_id", "roaming_date", "country", "roaming_data_mb", "roaming_minutes", "roaming_sms", "roaming_cost_jod"],
+    "network_towers": ["tower_id", "tower_name", "city", "technology", "status", "capacity_level"],
+    "network_events": ["tower_id", "event_start_time", "event_type", "severity", "affected_customers", "status"],
+}
+
+EVIDENCE_PLAYBOOKS = [
+    {
+        "title": "Save high-risk customers",
+        "area": "Customer & churn",
+        "query": "High churn risk frequent support complaints negative sentiment retention action",
+        "description": "Find customers who need proactive retention or service recovery.",
+    },
+    {
+        "title": "Explain poor experience",
+        "area": "Support & complaints",
+        "query": "Poor support slow internet dropped calls critical complaint negative sentiment",
+        "description": "Collect support and complaint evidence behind customer dissatisfaction.",
+    },
+    {
+        "title": "Prioritize collections",
+        "area": "Billing & payments",
+        "query": "Overdue unpaid partially paid late payment invoice payment delay",
+        "description": "Find billing records that indicate collection pressure.",
+    },
+    {
+        "title": "Retarget missed campaigns",
+        "area": "Campaigns & offers",
+        "query": "Campaign sent not converted upgrade offer loyalty data bundle",
+        "description": "Find campaign response evidence for retargeting ideas.",
+    },
+    {
+        "title": "Investigate network pressure",
+        "area": "Network",
+        "query": "Congestion outage degraded service high critical affected customers",
+        "description": "Find network events that could explain complaints or churn.",
+    },
+    {
+        "title": "Understand usage behavior",
+        "area": "Usage & services",
+        "query": "Video streaming roaming data usage business apps mobile data fiber 5G",
+        "description": "Find usage, subscription, roaming, and device evidence.",
+    },
+]
+
 
 
 st.set_page_config(
@@ -899,6 +1004,213 @@ hr {{
     background: var(--line);
 }}
 
+
+.playbook-card {{
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--surface), var(--surface-2));
+    padding: 0.86rem;
+    min-height: 8.4rem;
+    box-shadow: var(--shadow-sm);
+}}
+
+.playbook-title {{
+    color: var(--ink);
+    font-size: 0.94rem;
+    font-weight: 950;
+    margin-bottom: 0.32rem;
+}}
+
+.playbook-copy {{
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}}
+
+.action-card {{
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background:
+        radial-gradient(circle at 96% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 11rem),
+        var(--surface);
+    box-shadow: var(--shadow-sm);
+    padding: 0.95rem;
+    margin-bottom: 0.72rem;
+}}
+
+.action-header {{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.7rem;
+    margin-bottom: 0.56rem;
+}}
+
+.action-title {{
+    color: var(--ink);
+    font-weight: 950;
+    font-size: 0.98rem;
+    line-height: 1.3;
+}}
+
+.action-subtitle {{
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 0.18rem;
+    line-height: 1.45;
+}}
+
+.priority-badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: 0.28rem 0.52rem;
+    font-size: 0.72rem;
+    font-weight: 950;
+    border: 1px solid var(--line);
+}}
+
+.priority-high {{
+    background: color-mix(in srgb, var(--danger) 13%, var(--surface));
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+}}
+
+.priority-medium {{
+    background: color-mix(in srgb, var(--warning) 13%, var(--surface));
+    color: var(--warning);
+    border-color: color-mix(in srgb, var(--warning) 35%, transparent);
+}}
+
+.priority-low {{
+    background: color-mix(in srgb, var(--success) 13%, var(--surface));
+    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 35%, transparent);
+}}
+
+.action-stat-grid {{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.45rem;
+    margin: 0.6rem 0 0.28rem;
+}}
+
+.action-stat {{
+    border: 1px solid var(--soft-line);
+    border-radius: 13px;
+    background: var(--surface-2);
+    padding: 0.52rem;
+    min-width: 0;
+}}
+
+.action-stat-label {{
+    color: var(--muted);
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}}
+
+.action-stat-value {{
+    color: var(--ink);
+    font-size: 0.92rem;
+    font-weight: 950;
+    margin-top: 0.13rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}}
+
+.evidence-summary-grid {{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin-bottom: 0.8rem;
+}}
+
+.evidence-summary-card {{
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    padding: 0.85rem;
+}}
+
+.evidence-summary-label {{
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}}
+
+.evidence-summary-value {{
+    color: var(--ink);
+    font-size: 1.15rem;
+    font-weight: 950;
+    margin-top: 0.22rem;
+}}
+
+.evidence-card {{
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--surface) 94%, var(--accent) 6%), var(--surface));
+    box-shadow: var(--shadow-sm);
+    padding: 0.9rem;
+    margin-bottom: 0.68rem;
+}}
+
+.evidence-title-row {{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-bottom: 0.42rem;
+}}
+
+.evidence-title {{
+    color: var(--ink);
+    font-size: 0.96rem;
+    line-height: 1.32;
+    font-weight: 950;
+}}
+
+.evidence-source-line {{
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-top: 0.16rem;
+}}
+
+.evidence-body {{
+    color: var(--muted);
+    line-height: 1.55;
+    font-size: 0.86rem;
+}}
+
+.match-chip {{
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 0.17rem 0.42rem;
+    margin: 0.08rem;
+    font-size: 0.68rem;
+    font-weight: 850;
+}}
+
+.customer-link-note {{
+    color: var(--accent-dark);
+    font-size: 0.77rem;
+    font-weight: 900;
+    margin-top: 0.48rem;
+}}
+
 @media (max-width: 980px) {{
     :root {{ --drawer-width: 318px; }}
     [data-testid="stMain"] .block-container,
@@ -970,6 +1282,97 @@ def render_insight_cards(cards: list[tuple[str, str]]) -> None:
 
 def render_section_title(title: str) -> None:
     st.markdown(f'<div class="section-title">{safe_html(title)}</div>', unsafe_allow_html=True)
+
+
+
+def compact_number(value: Any, decimals: int = 0, suffix: str = "") -> str:
+    try:
+        number = float(value or 0)
+    except (TypeError, ValueError):
+        return f"0{suffix}"
+    if abs(number) >= 1_000_000:
+        return f"{number / 1_000_000:.1f}M{suffix}"
+    if abs(number) >= 1_000:
+        return f"{number / 1_000:.1f}K{suffix}"
+    if decimals:
+        return f"{number:.{decimals}f}{suffix}"
+    return f"{number:,.0f}{suffix}"
+
+
+def percent_text(numerator: Any, denominator: Any) -> str:
+    try:
+        n = float(numerator or 0)
+        d = float(denominator or 0)
+    except (TypeError, ValueError):
+        return "0.0%"
+    if d == 0:
+        return "0.0%"
+    return f"{n / d * 100:.1f}%"
+
+
+def table_label(table_name: str) -> str:
+    return EVIDENCE_TABLE_LABELS.get(table_name, table_name.replace("_", " ").title())
+
+
+def table_area(table_name: str) -> str:
+    for area, tables in EVIDENCE_TABLE_AREAS.items():
+        if table_name in tables:
+            return area
+    return "Other"
+
+
+def priority_from_score(score: float, high: float = 75, medium: float = 45) -> tuple[str, str]:
+    if score >= high:
+        return "High priority", "priority-high"
+    if score >= medium:
+        return "Medium priority", "priority-medium"
+    return "Watch", "priority-low"
+
+
+def render_action_stat(label: str, value: Any) -> str:
+    return (
+        '<div class="action-stat">'
+        f'<div class="action-stat-label">{safe_html(label)}</div>'
+        f'<div class="action-stat-value">{safe_html(value)}</div>'
+        '</div>'
+    )
+
+
+def render_action_card(
+    title: str,
+    subtitle: str,
+    priority_score: float,
+    stats: list[tuple[str, Any]],
+    action: str,
+) -> None:
+    priority_label, priority_class = priority_from_score(priority_score)
+    stats_html = "".join(render_action_stat(label, value) for label, value in stats)
+    st.markdown(
+        f"""
+        <div class="action-card">
+            <div class="action-header">
+                <div>
+                    <div class="action-title">{safe_html(title)}</div>
+                    <div class="action-subtitle">{safe_html(subtitle)}</div>
+                </div>
+                <div class="priority-badge {priority_class}">{safe_html(priority_label)}</div>
+            </div>
+            <div class="action-stat-grid">{stats_html}</div>
+            <div class="customer-link-note">Recommended next step: {safe_html(action)}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def ordered_unique(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    output: list[str] = []
+    for item in items:
+        if item not in seen:
+            output.append(item)
+            seen.add(item)
+    return output
 
 
 # -----------------------------
@@ -1097,6 +1500,7 @@ def build_customer_scope_cte(
     return cte, params
 
 
+
 @st.cache_data(show_spinner=False)
 def get_dynamic_analytics_data(
     db_path: str,
@@ -1111,6 +1515,7 @@ def get_dynamic_analytics_data(
     top_n: int,
     campaign_types: tuple[str, ...],
     payment_statuses: tuple[str, ...],
+    comparison_dimension: str = "City",
 ) -> dict[str, pd.DataFrame]:
     conn = connect_sqlite(db_path)
     cte, params = build_customer_scope_cte(
@@ -1157,11 +1562,19 @@ def get_dynamic_analytics_data(
              JOIN accounts a ON a.account_id = i.account_id
              JOIN customer_scope cs ON cs.customer_id = a.customer_id
              WHERE 1=1 {payment_condition}) AS total_invoiced_jod,
+            (SELECT ROUND(SUM(CASE WHEN i.payment_status IN ('Overdue','Unpaid','Partially Paid') THEN i.total_amount_jod ELSE 0 END), 2)
+             FROM invoices i
+             JOIN accounts a ON a.account_id = i.account_id
+             JOIN customer_scope cs ON cs.customer_id = a.customer_id) AS open_billing_jod,
             (SELECT COUNT(*)
              FROM complaints co JOIN customer_scope cs ON cs.customer_id = co.customer_id) AS total_complaints,
             (SELECT COUNT(*)
              FROM support_interactions si JOIN customer_scope cs ON cs.customer_id = si.customer_id
-             WHERE si.customer_sentiment = 'Negative') AS negative_support_cases
+             WHERE si.customer_sentiment = 'Negative') AS negative_support_cases,
+            (SELECT ROUND(AVG(csat.csat_score), 2)
+             FROM customer_satisfaction csat JOIN customer_scope cs ON cs.customer_id = csat.customer_id) AS avg_csat,
+            (SELECT ROUND(AVG(csat.nps_score), 2)
+             FROM customer_satisfaction csat JOIN customer_scope cs ON cs.customer_id = csat.customer_id) AS avg_nps
         """,
         conn,
         params=params + payment_params,
@@ -1286,6 +1699,29 @@ def get_dynamic_analytics_data(
         params=params + payment_params,
     )
 
+    data["billing_aging"] = pd.read_sql_query(
+        cte
+        + """
+        SELECT
+            CASE
+                WHEN i.days_overdue IS NULL OR i.days_overdue <= 0 THEN 'Current'
+                WHEN i.days_overdue BETWEEN 1 AND 15 THEN '1-15 days'
+                WHEN i.days_overdue BETWEEN 16 AND 30 THEN '16-30 days'
+                WHEN i.days_overdue BETWEEN 31 AND 60 THEN '31-60 days'
+                ELSE '60+ days'
+            END AS aging_bucket,
+            COUNT(*) AS invoices,
+            ROUND(SUM(i.total_amount_jod), 2) AS amount_jod
+        FROM invoices i
+        JOIN accounts a ON a.account_id = i.account_id
+        JOIN customer_scope cs ON cs.customer_id = a.customer_id
+        GROUP BY aging_bucket
+        ORDER BY CASE aging_bucket WHEN 'Current' THEN 1 WHEN '1-15 days' THEN 2 WHEN '16-30 days' THEN 3 WHEN '31-60 days' THEN 4 ELSE 5 END
+        """,
+        conn,
+        params=params,
+    )
+
     data["revenue_trend"] = pd.read_sql_query(
         cte
         + """
@@ -1296,6 +1732,159 @@ def get_dynamic_analytics_data(
         """,
         conn,
         params=params,
+    )
+
+    comparison_map = {
+        "City": ("c.city", "City"),
+        "Customer segment": ("c.customer_segment", "Customer segment"),
+        "Value segment": ("cvs.value_segment", "Value segment"),
+        "Churn risk": ("ch.risk_level", "Churn risk"),
+        "Service type": ("s.service_type", "Service type"),
+    }
+    dimension_expr, dimension_title = comparison_map.get(comparison_dimension, comparison_map["City"])
+    data["comparison"] = pd.read_sql_query(
+        cte
+        + f"""
+        SELECT
+            COALESCE({dimension_expr}, 'Unknown') AS dimension,
+            COUNT(DISTINCT c.customer_id) AS customers,
+            COUNT(DISTINCT CASE WHEN ch.risk_level = 'High' THEN c.customer_id END) AS high_risk_customers,
+            ROUND(AVG(ch.churn_score), 3) AS avg_churn_score,
+            ROUND(AVG(cvs.arpu_jod), 2) AS avg_arpu_jod,
+            ROUND(SUM(cms.total_revenue_jod), 2) AS total_revenue_jod,
+            ROUND(AVG(csat.csat_score), 2) AS avg_csat
+        FROM customers c
+        JOIN customer_scope cs ON cs.customer_id = c.customer_id
+        LEFT JOIN customer_churn_scores ch ON ch.customer_id = c.customer_id
+        LEFT JOIN customer_value_segments cvs ON cvs.customer_id = c.customer_id
+        LEFT JOIN subscriptions s ON s.customer_id = c.customer_id
+        LEFT JOIN customer_monthly_summary cms ON cms.customer_id = c.customer_id
+        LEFT JOIN customer_satisfaction csat ON csat.customer_id = c.customer_id
+        GROUP BY dimension
+        ORDER BY total_revenue_jod DESC, customers DESC
+        LIMIT ?
+        """,
+        conn,
+        params=params + [int(top_n)],
+    )
+    data["comparison"].attrs["dimension_title"] = dimension_title
+
+    data["usage_mix"] = pd.read_sql_query(
+        cte
+        + """
+        SELECT
+            dus.app_category,
+            dus.network_type,
+            COUNT(*) AS sessions,
+            ROUND(SUM(dus.data_used_mb) / 1024.0, 2) AS data_gb,
+            ROUND(SUM(dus.cost_jod), 2) AS usage_revenue_jod
+        FROM data_usage_sessions dus
+        JOIN subscriptions s ON s.subscription_id = dus.subscription_id
+        JOIN customer_scope cs ON cs.customer_id = s.customer_id
+        GROUP BY dus.app_category, dus.network_type
+        ORDER BY data_gb DESC
+        LIMIT ?
+        """,
+        conn,
+        params=params + [int(top_n)],
+    )
+
+    data["satisfaction"] = pd.read_sql_query(
+        cte
+        + """
+        SELECT
+            csat.sentiment,
+            COUNT(*) AS responses,
+            ROUND(AVG(csat.nps_score), 2) AS avg_nps,
+            ROUND(AVG(csat.csat_score), 2) AS avg_csat
+        FROM customer_satisfaction csat
+        JOIN customer_scope cs ON cs.customer_id = csat.customer_id
+        GROUP BY csat.sentiment
+        ORDER BY responses DESC
+        """,
+        conn,
+        params=params,
+    )
+
+    data["network_hotspots"] = pd.read_sql_query(
+        """
+        SELECT
+            nt.city,
+            nt.technology,
+            nt.capacity_level,
+            ne.event_type,
+            ne.severity,
+            COUNT(*) AS events,
+            SUM(ne.affected_customers) AS affected_customers
+        FROM network_events ne
+        JOIN network_towers nt ON nt.tower_id = ne.tower_id
+        GROUP BY nt.city, nt.technology, nt.capacity_level, ne.event_type, ne.severity
+        ORDER BY affected_customers DESC, events DESC
+        LIMIT ?
+        """,
+        conn,
+        params=[int(top_n)],
+    )
+
+    data["action_queue"] = pd.read_sql_query(
+        cte
+        + """,
+        complaint_agg AS (
+            SELECT customer_id, COUNT(*) AS complaint_count,
+                   SUM(CASE WHEN severity IN ('High','Critical') THEN 1 ELSE 0 END) AS severe_complaints
+            FROM complaints
+            GROUP BY customer_id
+        ),
+        support_agg AS (
+            SELECT customer_id, COUNT(*) AS support_cases,
+                   SUM(CASE WHEN customer_sentiment = 'Negative' THEN 1 ELSE 0 END) AS negative_cases
+            FROM support_interactions
+            GROUP BY customer_id
+        ),
+        billing_agg AS (
+            SELECT a.customer_id,
+                   SUM(CASE WHEN i.payment_status IN ('Overdue','Unpaid','Partially Paid') THEN i.total_amount_jod ELSE 0 END) AS open_billing_jod,
+                   MAX(COALESCE(i.days_overdue, 0)) AS max_days_overdue
+            FROM accounts a
+            JOIN invoices i ON i.account_id = a.account_id
+            GROUP BY a.customer_id
+        )
+        SELECT
+            c.customer_id,
+            c.full_name,
+            c.city,
+            c.customer_segment,
+            ch.risk_level,
+            ROUND(ch.churn_score, 3) AS churn_score,
+            ch.main_risk_reason,
+            ch.recommended_action,
+            cvs.value_segment,
+            ROUND(cvs.arpu_jod, 2) AS arpu_jod,
+            ROUND(cvs.total_revenue_6m_jod, 2) AS total_revenue_6m_jod,
+            COALESCE(ca.complaint_count, 0) AS complaint_count,
+            COALESCE(ca.severe_complaints, 0) AS severe_complaints,
+            COALESCE(sa.negative_cases, 0) AS negative_support_cases,
+            ROUND(COALESCE(ba.open_billing_jod, 0), 2) AS open_billing_jod,
+            COALESCE(ba.max_days_overdue, 0) AS max_days_overdue,
+            ROUND(
+                COALESCE(ch.churn_score, 0) * 100
+                + COALESCE(cvs.arpu_jod, 0) * 0.9
+                + COALESCE(ca.severe_complaints, 0) * 8
+                + COALESCE(sa.negative_cases, 0) * 4
+                + CASE WHEN COALESCE(ba.max_days_overdue, 0) > 30 THEN 12 ELSE 0 END
+            , 1) AS priority_score
+        FROM customers c
+        JOIN customer_scope cs ON cs.customer_id = c.customer_id
+        LEFT JOIN customer_churn_scores ch ON ch.customer_id = c.customer_id
+        LEFT JOIN customer_value_segments cvs ON cvs.customer_id = c.customer_id
+        LEFT JOIN complaint_agg ca ON ca.customer_id = c.customer_id
+        LEFT JOIN support_agg sa ON sa.customer_id = c.customer_id
+        LEFT JOIN billing_agg ba ON ba.customer_id = c.customer_id
+        ORDER BY priority_score DESC, COALESCE(cvs.arpu_jod, 0) DESC
+        LIMIT ?
+        """,
+        conn,
+        params=params + [int(top_n)],
     )
 
     data["scoped_customers"] = pd.read_sql_query(
@@ -1320,6 +1909,166 @@ def get_dynamic_analytics_data(
         """,
         conn,
         params=params,
+    )
+
+    return data
+
+
+@st.cache_data(show_spinner=False)
+def get_action_center_data(
+    db_path: str,
+    cities: tuple[str, ...],
+    customer_segments: tuple[str, ...],
+    value_segments: tuple[str, ...],
+    risk_levels: tuple[str, ...],
+    service_types: tuple[str, ...],
+    min_arpu: float,
+    min_churn_score: float,
+    top_n: int,
+) -> dict[str, pd.DataFrame]:
+    conn = connect_sqlite(db_path)
+    cte, params = build_customer_scope_cte(
+        cities=cities,
+        customer_segments=customer_segments,
+        value_segments=value_segments,
+        risk_levels=risk_levels,
+        service_types=service_types,
+        min_arpu=min_arpu,
+    )
+    churn_condition = ""
+    churn_params: list[Any] = []
+    if min_churn_score > 0:
+        churn_condition = " AND COALESCE(ch.churn_score, 0) >= ?"
+        churn_params.append(float(min_churn_score))
+
+    data: dict[str, pd.DataFrame] = {}
+
+    data["overview"] = pd.read_sql_query(
+        cte
+        + """
+        SELECT
+            (SELECT COUNT(*) FROM customer_scope) AS customers_in_scope,
+            (SELECT COUNT(*) FROM customer_churn_scores ch JOIN customer_scope cs ON cs.customer_id = ch.customer_id WHERE ch.risk_level = 'High') AS high_risk_customers,
+            (SELECT ROUND(SUM(cvs.total_revenue_6m_jod), 2) FROM customer_value_segments cvs JOIN customer_scope cs ON cs.customer_id = cvs.customer_id) AS six_month_revenue_jod,
+            (SELECT ROUND(SUM(CASE WHEN i.payment_status IN ('Overdue','Unpaid','Partially Paid') THEN i.total_amount_jod ELSE 0 END), 2)
+             FROM invoices i JOIN accounts a ON a.account_id = i.account_id JOIN customer_scope cs ON cs.customer_id = a.customer_id) AS open_billing_jod,
+            (SELECT COUNT(*) FROM complaints co JOIN customer_scope cs ON cs.customer_id = co.customer_id WHERE co.severity IN ('High','Critical')) AS severe_complaints,
+            (SELECT SUM(ne.affected_customers) FROM network_events ne WHERE ne.severity IN ('High','Critical')) AS critical_network_impact
+        """,
+        conn,
+        params=params,
+    )
+
+    base_customer_sql = cte + """,
+        complaint_agg AS (
+            SELECT customer_id, COUNT(*) AS complaint_count,
+                   SUM(CASE WHEN severity IN ('High','Critical') THEN 1 ELSE 0 END) AS severe_complaints
+            FROM complaints GROUP BY customer_id
+        ),
+        support_agg AS (
+            SELECT customer_id, COUNT(*) AS support_cases,
+                   SUM(CASE WHEN customer_sentiment = 'Negative' THEN 1 ELSE 0 END) AS negative_cases
+            FROM support_interactions GROUP BY customer_id
+        ),
+        billing_agg AS (
+            SELECT a.customer_id,
+                   SUM(CASE WHEN i.payment_status IN ('Overdue','Unpaid','Partially Paid') THEN i.total_amount_jod ELSE 0 END) AS open_billing_jod,
+                   MAX(COALESCE(i.days_overdue, 0)) AS max_days_overdue
+            FROM accounts a JOIN invoices i ON i.account_id = a.account_id
+            GROUP BY a.customer_id
+        )
+        SELECT
+            c.customer_id, c.full_name, c.city, c.customer_segment,
+            ch.risk_level, ROUND(ch.churn_score, 3) AS churn_score,
+            ch.main_risk_reason, ch.recommended_action,
+            cvs.value_segment, ROUND(cvs.arpu_jod, 2) AS arpu_jod,
+            ROUND(cvs.total_revenue_6m_jod, 2) AS total_revenue_6m_jod,
+            COALESCE(ca.complaint_count, 0) AS complaint_count,
+            COALESCE(ca.severe_complaints, 0) AS severe_complaints,
+            COALESCE(sa.negative_cases, 0) AS negative_support_cases,
+            ROUND(COALESCE(ba.open_billing_jod, 0), 2) AS open_billing_jod,
+            COALESCE(ba.max_days_overdue, 0) AS max_days_overdue,
+            ROUND(
+                COALESCE(ch.churn_score, 0) * 100
+                + COALESCE(cvs.arpu_jod, 0)
+                + COALESCE(ca.severe_complaints, 0) * 9
+                + COALESCE(sa.negative_cases, 0) * 5
+                + CASE WHEN COALESCE(ba.max_days_overdue, 0) > 30 THEN 12 ELSE 0 END
+            , 1) AS priority_score
+        FROM customers c
+        JOIN customer_scope cs ON cs.customer_id = c.customer_id
+        LEFT JOIN customer_churn_scores ch ON ch.customer_id = c.customer_id
+        LEFT JOIN customer_value_segments cvs ON cvs.customer_id = c.customer_id
+        LEFT JOIN complaint_agg ca ON ca.customer_id = c.customer_id
+        LEFT JOIN support_agg sa ON sa.customer_id = c.customer_id
+        LEFT JOIN billing_agg ba ON ba.customer_id = c.customer_id
+        WHERE 1=1 {condition}
+    """
+
+    data["retention"] = pd.read_sql_query(
+        base_customer_sql.format(condition=churn_condition + " AND COALESCE(ch.risk_level, '') IN ('High','Medium')")
+        + " ORDER BY priority_score DESC LIMIT ?",
+        conn,
+        params=params + churn_params + [int(top_n)],
+    )
+
+    data["collections"] = pd.read_sql_query(
+        base_customer_sql.format(condition=" AND COALESCE(ba.open_billing_jod, 0) > 0")
+        + " ORDER BY open_billing_jod DESC, max_days_overdue DESC LIMIT ?",
+        conn,
+        params=params + [int(top_n)],
+    )
+
+    data["experience_recovery"] = pd.read_sql_query(
+        base_customer_sql.format(condition=" AND (COALESCE(ca.severe_complaints, 0) > 0 OR COALESCE(sa.negative_cases, 0) > 0)")
+        + " ORDER BY severe_complaints DESC, negative_support_cases DESC, priority_score DESC LIMIT ?",
+        conn,
+        params=params + [int(top_n)],
+    )
+
+    data["campaign_retention"] = pd.read_sql_query(
+        cte
+        + """
+        SELECT
+            camp.campaign_name,
+            camp.campaign_type,
+            camp.target_segment,
+            r.channel,
+            COUNT(*) AS contacted_customers,
+            SUM(CASE WHEN r.converted_flag = 0 THEN 1 ELSE 0 END) AS not_converted,
+            ROUND(100.0 * SUM(CASE WHEN r.converted_flag = 0 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS missed_rate,
+            ROUND(SUM(CASE WHEN r.converted_flag = 1 THEN r.revenue_generated_jod ELSE 0 END), 2) AS won_revenue_jod
+        FROM customer_campaign_responses r
+        JOIN campaigns camp ON camp.campaign_id = r.campaign_id
+        JOIN customer_scope cs ON cs.customer_id = r.customer_id
+        GROUP BY camp.campaign_name, camp.campaign_type, camp.target_segment, r.channel
+        HAVING not_converted > 0
+        ORDER BY not_converted DESC, missed_rate DESC
+        LIMIT ?
+        """,
+        conn,
+        params=params + [int(top_n)],
+    )
+
+    data["network"] = pd.read_sql_query(
+        """
+        SELECT
+            nt.city,
+            nt.tower_name,
+            nt.technology,
+            nt.capacity_level,
+            ne.event_type,
+            ne.severity,
+            COUNT(*) AS events,
+            SUM(ne.affected_customers) AS affected_customers
+        FROM network_events ne
+        JOIN network_towers nt ON nt.tower_id = ne.tower_id
+        GROUP BY nt.city, nt.tower_name, nt.technology, nt.capacity_level, ne.event_type, ne.severity
+        ORDER BY affected_customers DESC, events DESC
+        LIMIT ?
+        """,
+        conn,
+        params=[int(top_n)],
     )
 
     return data
@@ -1489,10 +2238,14 @@ def render_composer() -> tuple[str, bool, bool]:
 # RAG search helpers
 # -----------------------------
 
+
 def tokenize_query(query: str) -> list[str]:
     tokens = re.findall(r"[\w\u0600-\u06FF]{2,}", query.lower())
-    stopwords = {"the", "and", "for", "with", "from", "this", "that", "show", "find", "what", "which", "how"}
-    return [token for token in tokens if token not in stopwords][:12]
+    stopwords = {
+        "the", "and", "for", "with", "from", "this", "that", "show", "find", "what", "which", "how",
+        "customer", "customers", "record", "records", "data", "zain", "please", "need", "want",
+    }
+    return [token for token in tokens if token not in stopwords][:16]
 
 
 @st.cache_data(show_spinner=False)
@@ -1506,30 +2259,122 @@ def get_searchable_tables(db_path: str) -> dict[str, list[str]]:
         for _, row in info.iterrows():
             col_type = str(row["type"]).upper()
             col_name = str(row["name"])
-            if "TEXT" in col_type or col_name.endswith("_id") or col_name in {"customer_id", "subscription_id", "account_id"}:
+            if (
+                "TEXT" in col_type
+                or col_name.endswith("_id")
+                or col_name in {"customer_id", "subscription_id", "account_id", "campaign_id", "tower_id"}
+            ):
                 cols.append(col_name)
         if cols:
             searchable[table] = cols
     return searchable
 
 
-def row_to_snippet(row: pd.Series, max_fields: int = 9, max_chars: int = 620) -> str:
-    fields: list[str] = []
-    for key, value in row.items():
-        if key == "_rowid" or pd.isna(value):
+def evidence_display_fields(table: str, row: pd.Series, max_fields: int = 9) -> list[tuple[str, str]]:
+    preferred = EVIDENCE_DISPLAY_FIELDS.get(table, [])
+    available = [field for field in preferred if field in row.index and not pd.isna(row.get(field))]
+    rest = [
+        field for field in row.index
+        if field not in available and field != "_rowid" and not str(field).startswith("_") and not pd.isna(row.get(field))
+    ]
+    fields = ordered_unique(available + rest)[:max_fields]
+    output: list[tuple[str, str]] = []
+    for field in fields:
+        value = row.get(field)
+        if pd.isna(value):
             continue
         text = str(value).replace("\n", " ").strip()
         if not text:
             continue
-        if len(text) > 120:
-            text = text[:117] + "..."
-        fields.append(f"{key}: {text}")
-        if len(fields) >= max_fields:
-            break
-    snippet = " | ".join(fields)
+        if len(text) > 140:
+            text = text[:137] + "..."
+        output.append((field.replace("_", " ").title(), text))
+    return output
+
+
+def row_to_snippet(row: pd.Series, max_fields: int = 9, max_chars: int = 700, table: str = "") -> str:
+    fields = evidence_display_fields(table, row, max_fields=max_fields)
+    snippet = " | ".join(f"{label}: {value}" for label, value in fields)
     if len(snippet) > max_chars:
         snippet = snippet[: max_chars - 3] + "..."
     return snippet
+
+
+def evidence_title_from_row(table: str, row: pd.Series) -> str:
+    if table == "customers":
+        return str(row.get("full_name") or f"Customer {row.get('customer_id', '')}").strip()
+    if table == "customer_churn_scores":
+        return f"{row.get('risk_level', 'Risk')} churn signal for customer {row.get('customer_id', '')}"
+    if table == "complaints":
+        return f"{row.get('severity', 'Complaint')} complaint · {row.get('complaint_category', 'Category')}"
+    if table == "support_interactions":
+        return f"{row.get('customer_sentiment', 'Support')} support case · {row.get('reason_category', 'Reason')}"
+    if table == "campaigns":
+        return str(row.get("campaign_name") or "Campaign")
+    if table == "customer_campaign_responses":
+        return f"{row.get('response_status', 'Campaign response')} · campaign {row.get('campaign_id', '')}"
+    if table == "invoices":
+        return f"{row.get('payment_status', 'Invoice')} invoice · {row.get('total_amount_jod', '')} JOD"
+    if table == "payments":
+        return f"{row.get('payment_status', 'Payment')} payment · {row.get('amount_jod', '')} JOD"
+    if table == "network_events":
+        return f"{row.get('severity', 'Network')} {row.get('event_type', 'event')}"
+    if table == "network_towers":
+        return f"{row.get('tower_name', 'Tower')} · {row.get('city', '')}"
+    if table == "data_usage_sessions":
+        return f"{row.get('app_category', 'Usage')} data session"
+    if table == "roaming_usage":
+        return f"Roaming in {row.get('country', 'country')}"
+    if "customer_id" in row.index and not pd.isna(row.get("customer_id")):
+        return f"{table_label(table)} for customer {row.get('customer_id')}"
+    return table_label(table)
+
+
+def customer_context_map(conn: sqlite3.Connection, customer_ids: list[int]) -> dict[int, str]:
+    ids = sorted({int(customer_id) for customer_id in customer_ids if pd.notna(customer_id)})
+    if not ids:
+        return {}
+    sql = f"""
+        SELECT
+            c.customer_id,
+            c.full_name,
+            c.city,
+            c.customer_segment,
+            ch.risk_level,
+            ROUND(ch.churn_score, 3) AS churn_score,
+            cvs.value_segment,
+            ROUND(cvs.arpu_jod, 2) AS arpu_jod
+        FROM customers c
+        LEFT JOIN customer_churn_scores ch ON ch.customer_id = c.customer_id
+        LEFT JOIN customer_value_segments cvs ON cvs.customer_id = c.customer_id
+        WHERE c.customer_id IN ({placeholders(tuple(ids))})
+    """
+    df = pd.read_sql_query(sql, conn, params=ids)
+    context: dict[int, str] = {}
+    for _, row in df.iterrows():
+        context[int(row["customer_id"])] = (
+            f"{row.get('full_name')} · {row.get('city')} · "
+            f"{row.get('customer_segment')} · risk {row.get('risk_level')} · "
+            f"ARPU {row.get('arpu_jod')} JOD"
+        )
+    return context
+
+
+def customer_id_from_row(table: str, row: pd.Series) -> int | None:
+    if "customer_id" in row.index and pd.notna(row.get("customer_id")):
+        try:
+            return int(row.get("customer_id"))
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def result_confidence(score: int, matched_terms: list[str]) -> str:
+    if score >= 8 or len(matched_terms) >= 4:
+        return "Strong match"
+    if score >= 4 or len(matched_terms) >= 2:
+        return "Good match"
+    return "Light match"
 
 
 @st.cache_data(show_spinner=False)
@@ -1543,7 +2388,7 @@ def rag_search_database(
 ) -> pd.DataFrame:
     tokens = tokenize_query(query)
     if not tokens:
-        return pd.DataFrame(columns=["table", "rowid", "score", "snippet"])
+        return pd.DataFrame(columns=["table", "table_label", "business_area", "rowid", "score", "confidence", "matched_terms", "title", "customer_id", "customer_context", "snippet"])
 
     conn = connect_sqlite(db_path)
     searchable = get_searchable_tables(db_path)
@@ -1556,7 +2401,6 @@ def rag_search_database(
             continue
         safe_table = table.replace('"', '""')
         safe_cols = [col.replace('"', '""') for col in columns]
-        select_cols = ", ".join([f'"{col}"' for col in safe_cols])
 
         token_clauses: list[str] = []
         params: list[Any] = []
@@ -1566,7 +2410,7 @@ def rag_search_database(
             params.extend([f"%{token.lower()}%"] * len(safe_cols))
         joiner = " AND " if require_all_terms else " OR "
         where_clause = joiner.join(token_clauses)
-        query_sql = f'SELECT rowid AS _rowid, {select_cols} FROM "{safe_table}" WHERE {where_clause} LIMIT ?'
+        query_sql = f'SELECT rowid AS _rowid, * FROM "{safe_table}" WHERE {where_clause} LIMIT ?'
         try:
             table_df = pd.read_sql_query(query_sql, conn, params=params + [int(limit_per_table)])
         except Exception:
@@ -1574,28 +2418,51 @@ def rag_search_database(
 
         for _, row in table_df.iterrows():
             haystack = " ".join(str(v).lower() for v in row.values if pd.notna(v))
+            matched_terms = [token for token in tokens if token in haystack]
             score = sum(haystack.count(token) for token in tokens)
             if query.lower() in haystack:
                 score += 8
+            customer_id = customer_id_from_row(table, row)
             results.append(
                 {
                     "table": table,
+                    "table_label": table_label(table),
+                    "business_area": table_area(table),
                     "rowid": int(row.get("_rowid", 0) or 0),
                     "score": int(score),
-                    "snippet": row_to_snippet(row),
+                    "confidence": result_confidence(int(score), matched_terms),
+                    "matched_terms": ", ".join(matched_terms[:8]),
+                    "title": evidence_title_from_row(table, row),
+                    "customer_id": customer_id,
+                    "customer_context": "",
+                    "snippet": row_to_snippet(row, table=table),
                 }
             )
 
     if not results:
-        return pd.DataFrame(columns=["table", "rowid", "score", "snippet"])
-    result_df = pd.DataFrame(results).sort_values(["score", "table"], ascending=[False, True]).head(max_results)
+        return pd.DataFrame(columns=["table", "table_label", "business_area", "rowid", "score", "confidence", "matched_terms", "title", "customer_id", "customer_context", "snippet"])
+
+    customer_ids = [result["customer_id"] for result in results if result.get("customer_id") is not None]
+    context = customer_context_map(conn, customer_ids)
+    for result in results:
+        if result.get("customer_id") in context:
+            result["customer_context"] = context[result["customer_id"]]
+
+    result_df = pd.DataFrame(results).sort_values(["score", "business_area", "table_label"], ascending=[False, True, True]).head(max_results)
     return result_df.reset_index(drop=True)
 
 
-def build_rag_context(results_df: pd.DataFrame, max_chars: int = 12000) -> str:
+def build_rag_context(results_df: pd.DataFrame, max_chars: int = 14000) -> str:
     lines: list[str] = []
     for index, row in results_df.iterrows():
-        lines.append(f"[{index + 1}] Source table: {row['table']} | rowid: {row['rowid']} | score: {row['score']}\n{row['snippet']}")
+        customer_context = f"\nCustomer context: {row['customer_context']}" if str(row.get("customer_context") or "").strip() else ""
+        matched = f"\nMatched terms: {row['matched_terms']}" if str(row.get("matched_terms") or "").strip() else ""
+        lines.append(
+            f"[{index + 1}] {row.get('table_label', row['table'])} | area: {row.get('business_area', 'Other')} | "
+            f"table: {row['table']} | rowid: {row['rowid']} | confidence: {row.get('confidence', '')} | score: {row['score']}\n"
+            f"Title: {row.get('title', '')}{customer_context}{matched}\n"
+            f"Evidence: {row['snippet']}"
+        )
     context = "\n\n".join(lines)
     if len(context) > max_chars:
         context = context[: max_chars - 3] + "..."
@@ -1614,9 +2481,10 @@ def extract_model_text(result: Any) -> str:
 def answer_with_rag(question: str, context: str, model_name: str, api_key: str) -> str:
     model = create_chat_model(model_name=model_name, temperature=0.1, openai_api_key=api_key)
     system_prompt = (
-        "You are a telecom Customer 360 analyst. Answer using only the retrieved context. "
-        "If the context is not enough, say what is missing. Cite evidence by source numbers like [1], [2]. "
-        "Be concise, business-focused, and include recommended next actions when useful."
+        "You are a telecom Customer 360 analyst speaking to non-technical business users. "
+        "Answer using only the retrieved context. If the context is not enough, say what is missing. "
+        "Cite evidence by source numbers like [1], [2]. Structure the answer as: direct answer, evidence story, "
+        "business meaning, and recommended next action. Avoid SQL jargon."
     )
     user_prompt = f"Question:\n{question}\n\nRetrieved context:\n{context}"
     result = model.invoke([
@@ -1820,6 +2688,8 @@ def reset_analytics_filters(min_signup: str | None, max_signup: str | None) -> N
         "analytics_payment_statuses": [],
         "analytics_signup_start": min_signup or "",
         "analytics_signup_end": max_signup or "",
+        "analytics_lens": "Executive overview",
+        "analytics_compare_by": "City",
     }
     for key, value in reset_values.items():
         st.session_state[key] = value
@@ -1838,6 +2708,8 @@ def ensure_analytics_filter_defaults(min_signup: str | None, max_signup: str | N
         "analytics_payment_statuses": [],
         "analytics_signup_start": min_signup or "",
         "analytics_signup_end": max_signup or "",
+        "analytics_lens": "Executive overview",
+        "analytics_compare_by": "City",
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -1886,11 +2758,12 @@ def render_chat_page(api_key_input: str, db_path: str, model_name: str) -> None:
             st.rerun()
 
 
+
 def render_dynamic_analytics_page(db_path: str, model_name: str, api_key: str) -> None:
     render_hero(
         "Executive Analytics",
-        "Dynamic Customer 360 dashboard",
-        "Adjust filters, top-N limits, segments, risk levels, ARPU thresholds, campaign types, and billing status to explore the business from different angles.",
+        "Dynamic Customer 360 decision dashboard",
+        "Choose a business lens, compare segments, tune filters, and turn raw telecom records into decisions a non-technical user can act on.",
         "Interactive controls",
     )
 
@@ -1898,12 +2771,30 @@ def render_dynamic_analytics_page(db_path: str, model_name: str, api_key: str) -
     min_signup, max_signup = options.get("signup_date_bounds", [None, None])
     ensure_analytics_filter_defaults(min_signup, max_signup)
 
+    lens_options = [
+        "Executive overview",
+        "Retention & churn",
+        "Revenue & billing",
+        "Customer experience",
+        "Campaign performance",
+        "Network & usage",
+    ]
+    compare_options = ["City", "Customer segment", "Value segment", "Churn risk", "Service type"]
+
     with st.expander("Analytics filters", expanded=True):
-        reset_col, _spacer = st.columns([1, 3])
+        top_control, compare_control, reset_col = st.columns([1.4, 1.4, 0.8])
+        with top_control:
+            selected_lens = st.selectbox("Business lens", lens_options, key="analytics_lens")
+        with compare_control:
+            comparison_dimension = st.selectbox("Compare by", compare_options, key="analytics_compare_by")
         with reset_col:
-            if st.button("Reset filters", use_container_width=True):
-                reset_analytics_filters(min_signup, max_signup)
-                st.rerun()
+            st.markdown("<div style='height:1.72rem'></div>", unsafe_allow_html=True)
+            st.button(
+                "Reset filters",
+                use_container_width=True,
+                on_click=reset_analytics_filters,
+                args=(min_signup, max_signup),
+            )
 
         customer_col, business_col, date_col = st.columns(3)
         with customer_col:
@@ -1918,11 +2809,15 @@ def render_dynamic_analytics_page(db_path: str, model_name: str, api_key: str) -
             selected_services = st.multiselect("Service type", options=options["service_types"], key="analytics_services")
             selected_campaign_types = st.multiselect("Campaign type", options=options["campaign_types"], key="analytics_campaign_types")
             selected_payment_statuses = st.multiselect("Billing status", options=options["payment_statuses"], key="analytics_payment_statuses")
-            top_n = st.slider("Results to show", 5, 20, key="analytics_top_n")
+            top_n = st.slider("Results to show", 5, 25, key="analytics_top_n")
         with date_col:
             st.markdown('<div class="section-title">Date range</div>', unsafe_allow_html=True)
             signup_start = st.text_input("Signup start date", help="Use YYYY-MM-DD. Leave blank for no lower bound.", key="analytics_signup_start")
             signup_end = st.text_input("Signup end date", help="Use YYYY-MM-DD. Leave blank for no upper bound.", key="analytics_signup_end")
+            st.markdown(
+                '<p class="small-muted">Tip: the date filter is customer signup date. Usage, billing, support, and campaign views stay scoped to the selected customers.</p>',
+                unsafe_allow_html=True,
+            )
 
     data = get_dynamic_analytics_data(
         db_path=db_path,
@@ -1937,98 +2832,117 @@ def render_dynamic_analytics_page(db_path: str, model_name: str, api_key: str) -
         top_n=int(top_n),
         campaign_types=tuple(selected_campaign_types),
         payment_statuses=tuple(selected_payment_statuses),
+        comparison_dimension=comparison_dimension,
     )
 
     kpis = data["kpis"].iloc[0]
     scoped_customers = int(kpis.get("scoped_customers") or 0)
     high_risk = int(kpis.get("high_risk_customers") or 0)
-    high_risk_rate = (high_risk / scoped_customers * 100) if scoped_customers else 0
     avg_arpu = float(kpis.get("avg_arpu_jod") or 0)
-    total_invoiced = float(kpis.get("total_invoiced_jod") or 0)
+    open_billing = float(kpis.get("open_billing_jod") or 0)
+    avg_csat = float(kpis.get("avg_csat") or 0)
 
     render_metric_grid(
         [
-            ("Scoped customers", f"{scoped_customers:,}", "Customers matching the active filters"),
-            ("High-risk churn", f"{high_risk:,}", f"{high_risk_rate:.1f}% of scoped customers"),
-            ("Average ARPU", f"{avg_arpu:.2f} JOD", "Filtered customer value segments"),
-            ("Invoiced amount", f"{total_invoiced:,.0f} JOD", "Invoices matching billing filters"),
+            ("Scoped customers", f"{scoped_customers:,}", "Customers matching the current filters"),
+            ("High-risk churn", f"{high_risk:,}", f"{percent_text(high_risk, scoped_customers)} of scoped customers"),
+            ("Average ARPU", f"{avg_arpu:.2f} JOD", "Average monthly revenue per customer"),
+            ("Open billing exposure", f"{compact_number(open_billing, 1, ' JOD')}", "Overdue, unpaid, or partially paid invoices"),
         ]
     )
 
-    top_city = data["city_customers"].iloc[0].to_dict() if not data["city_customers"].empty else {"city": "N/A", "total_customers": 0}
+    top_action = data["action_queue"].iloc[0].to_dict() if not data["action_queue"].empty else None
     top_campaign = data["campaigns"].iloc[0].to_dict() if not data["campaigns"].empty else {"campaign_name": "N/A", "conversion_rate": 0, "revenue_generated_jod": 0}
-    top_complaint_df = data["complaints"].groupby("complaint_category", as_index=False)["complaints"].sum().sort_values("complaints", ascending=False) if not data["complaints"].empty else pd.DataFrame()
-    top_complaint = top_complaint_df.iloc[0].to_dict() if not top_complaint_df.empty else {"complaint_category": "N/A", "complaints": 0}
+    top_network = data["network_hotspots"].iloc[0].to_dict() if not data["network_hotspots"].empty else {"city": "N/A", "event_type": "N/A", "affected_customers": 0}
     render_insight_cards(
         [
-            ("Largest market", f"{top_city['city']} leads this view with {int(top_city['total_customers']):,} customers."),
-            ("Campaign winner", f"{top_campaign['campaign_name']} converts at {float(top_campaign['conversion_rate'] or 0):.1f}% and generated {float(top_campaign.get('revenue_generated_jod') or 0):,.0f} JOD."),
-            ("Experience issue", f"{top_complaint['complaint_category']} is the largest complaint category with {int(top_complaint['complaints']):,} complaints."),
+            (
+                "Best next customer action",
+                f"{top_action['full_name']} in {top_action['city']} is the highest-priority record with score {top_action['priority_score']}." if top_action else "No customer action is available for the current filters.",
+            ),
+            (
+                "Campaign winner",
+                f"{top_campaign['campaign_name']} converts at {float(top_campaign.get('conversion_rate') or 0):.1f}% and generated {float(top_campaign.get('revenue_generated_jod') or 0):,.0f} JOD.",
+            ),
+            (
+                "Network pressure",
+                f"{top_network['city']} has the largest network impact in this view: {top_network['event_type']} affecting {int(top_network.get('affected_customers') or 0):,} customers.",
+            ),
         ]
     )
 
     palette = chart_palette()
     risk_scale = alt.Scale(domain=["High", "Medium", "Low"], range=[palette["danger"], palette["warning"], palette["success"]])
 
-    left, right = st.columns(2)
-    with left:
-        with st.container(border=True):
-            render_section_title("Top cities by customers")
-            if data["city_customers"].empty:
-                st.info("No matching customers for the selected filters.")
-            else:
-                city_chart = (
-                    alt.Chart(data["city_customers"])
-                    .mark_bar(cornerRadiusTopRight=7, cornerRadiusBottomRight=7)
-                    .encode(
-                        y=alt.Y("city:N", sort="-x", title=None),
-                        x=alt.X("total_customers:Q", title="Customers"),
-                        color=alt.value(palette["accent"]),
-                        tooltip=["city", "total_customers"],
-                    )
-                    .properties(height=310, background="transparent")
+    with st.container(border=True):
+        metric_labels = {
+            "customers": "Customers",
+            "high_risk_customers": "High-risk customers",
+            "total_revenue_jod": "Revenue (JOD)",
+            "avg_arpu_jod": "Average ARPU",
+            "avg_csat": "Average CSAT",
+        }
+        metric_key = st.selectbox(
+            "Dynamic comparison metric",
+            list(metric_labels.keys()),
+            index=0,
+            format_func=lambda value: metric_labels[value],
+        )
+        render_section_title(f"{metric_labels[metric_key]} by {comparison_dimension}")
+        if data["comparison"].empty:
+            st.info("No comparison data for the selected filters.")
+        else:
+            comparison_chart = (
+                alt.Chart(data["comparison"])
+                .mark_bar(cornerRadiusTopRight=7, cornerRadiusBottomRight=7)
+                .encode(
+                    y=alt.Y("dimension:N", sort="-x", title=None),
+                    x=alt.X(f"{metric_key}:Q", title=metric_labels[metric_key]),
+                    color=alt.value(palette["accent"]),
+                    tooltip=["dimension", "customers", "high_risk_customers", "avg_churn_score", "avg_arpu_jod", "total_revenue_jod", "avg_csat"],
                 )
-                st.altair_chart(city_chart, use_container_width=True)
+                .properties(height=330, background="transparent")
+            )
+            st.altair_chart(comparison_chart, use_container_width=True)
 
-    with right:
-        with st.container(border=True):
-            render_section_title("Churn risk mix")
-            if data["churn_mix"].empty:
-                st.info("No churn score rows matched the filters.")
-            else:
-                churn_chart = (
-                    alt.Chart(data["churn_mix"])
-                    .mark_arc(innerRadius=64, outerRadius=112)
-                    .encode(
-                        theta=alt.Theta("customers:Q"),
-                        color=alt.Color("risk_level:N", scale=risk_scale, title="Risk"),
-                        tooltip=["risk_level", "customers", "avg_churn_score"],
+    if selected_lens == "Executive overview":
+        left, right = st.columns(2)
+        with left:
+            with st.container(border=True):
+                render_section_title("Top cities by customers")
+                if data["city_customers"].empty:
+                    st.info("No matching customers for the selected filters.")
+                else:
+                    city_chart = (
+                        alt.Chart(data["city_customers"])
+                        .mark_bar(cornerRadiusTopRight=7, cornerRadiusBottomRight=7)
+                        .encode(
+                            y=alt.Y("city:N", sort="-x", title=None),
+                            x=alt.X("total_customers:Q", title="Customers"),
+                            color=alt.value(palette["accent"]),
+                            tooltip=["city", "total_customers"],
+                        )
+                        .properties(height=310, background="transparent")
                     )
-                    .properties(height=310, background="transparent")
-                )
-                st.altair_chart(churn_chart, use_container_width=True)
-
-    left, right = st.columns(2)
-    with left:
-        with st.container(border=True):
-            render_section_title("High-risk customers by city")
-            if data["high_risk_city"].empty:
-                st.info("No high-risk customers matched the filters.")
-            else:
-                high_risk_chart = (
-                    alt.Chart(data["high_risk_city"])
-                    .mark_bar(cornerRadiusTopRight=7, cornerRadiusBottomRight=7)
-                    .encode(
-                        y=alt.Y("city:N", sort="-x", title=None),
-                        x=alt.X("high_risk_customers:Q", title="High-risk customers"),
-                        color=alt.value(palette["danger"]),
-                        tooltip=["city", "high_risk_customers"],
+                    st.altair_chart(city_chart, use_container_width=True)
+        with right:
+            with st.container(border=True):
+                render_section_title("Churn risk mix")
+                if data["churn_mix"].empty:
+                    st.info("No churn score rows matched the filters.")
+                else:
+                    churn_chart = (
+                        alt.Chart(data["churn_mix"])
+                        .mark_arc(innerRadius=64, outerRadius=112)
+                        .encode(
+                            theta=alt.Theta("customers:Q"),
+                            color=alt.Color("risk_level:N", scale=risk_scale, title="Risk"),
+                            tooltip=["risk_level", "customers", "avg_churn_score"],
+                        )
+                        .properties(height=310, background="transparent")
                     )
-                    .properties(height=310, background="transparent")
-                )
-                st.altair_chart(high_risk_chart, use_container_width=True)
+                    st.altair_chart(churn_chart, use_container_width=True)
 
-    with right:
         with st.container(border=True):
             render_section_title("Revenue trend and churn pressure")
             if data["revenue_trend"].empty:
@@ -2047,62 +2961,189 @@ def render_dynamic_analytics_page(db_path: str, model_name: str, api_key: str) -
                 )
                 st.altair_chart(revenue_chart, use_container_width=True)
 
-    left, right = st.columns(2)
-    with left:
-        with st.container(border=True):
-            render_section_title("Complaints by category and severity")
-            if data["complaints"].empty:
-                st.info("No complaints matched the filters.")
-            else:
-                complaint_chart = (
-                    alt.Chart(data["complaints"])
-                    .mark_bar(cornerRadiusTopRight=5, cornerRadiusBottomRight=5)
-                    .encode(
-                        y=alt.Y("complaint_category:N", sort="-x", title=None),
-                        x=alt.X("sum(complaints):Q", title="Complaints"),
-                        color=alt.Color("severity:N", title="Severity"),
-                        tooltip=["complaint_category", "severity", "complaints"],
+    elif selected_lens == "Retention & churn":
+        left, right = st.columns(2)
+        with left:
+            with st.container(border=True):
+                render_section_title("High-risk customers by city")
+                if data["high_risk_city"].empty:
+                    st.info("No high-risk customers matched the filters.")
+                else:
+                    high_risk_chart = (
+                        alt.Chart(data["high_risk_city"])
+                        .mark_bar(cornerRadiusTopRight=7, cornerRadiusBottomRight=7)
+                        .encode(
+                            y=alt.Y("city:N", sort="-x", title=None),
+                            x=alt.X("high_risk_customers:Q", title="High-risk customers"),
+                            color=alt.value(palette["danger"]),
+                            tooltip=["city", "high_risk_customers"],
+                        )
+                        .properties(height=330, background="transparent")
                     )
-                    .properties(height=330, background="transparent")
-                )
-                st.altair_chart(complaint_chart, use_container_width=True)
+                    st.altair_chart(high_risk_chart, use_container_width=True)
+        with right:
+            with st.container(border=True):
+                render_section_title("Retention action queue")
+                if data["action_queue"].empty:
+                    st.info("No customer actions matched the filters.")
+                else:
+                    for _, row in data["action_queue"].head(5).iterrows():
+                        render_action_card(
+                            title=f"{row['full_name']} · {row['city']}",
+                            subtitle=f"{row['risk_level']} churn risk · {row['main_risk_reason'] or 'No reason available'}",
+                            priority_score=float(row.get("priority_score") or 0),
+                            stats=[
+                                ("ARPU", f"{float(row.get('arpu_jod') or 0):.2f} JOD"),
+                                ("Churn", f"{float(row.get('churn_score') or 0):.2f}"),
+                                ("Complaints", int(row.get("complaint_count") or 0)),
+                                ("Open bill", f"{float(row.get('open_billing_jod') or 0):.0f} JOD"),
+                            ],
+                            action=str(row.get("recommended_action") or "Proactive care follow-up"),
+                        )
 
-    with right:
-        with st.container(border=True):
-            render_section_title("Support sentiment by channel")
-            if data["support_sentiment"].empty:
-                st.info("No support interactions matched the filters.")
-            else:
-                support_chart = (
-                    alt.Chart(data["support_sentiment"])
-                    .mark_bar(cornerRadiusTopRight=5, cornerRadiusBottomRight=5)
-                    .encode(
-                        y=alt.Y("channel:N", sort="-x", title=None),
-                        x=alt.X("sum(interactions):Q", title="Interactions"),
-                        color=alt.Color("customer_sentiment:N", title="Sentiment"),
-                        tooltip=["channel", "customer_sentiment", "interactions"],
+    elif selected_lens == "Revenue & billing":
+        left, right = st.columns(2)
+        with left:
+            with st.container(border=True):
+                render_section_title("Billing status exposure")
+                if data["billing"].empty:
+                    st.info("No billing rows matched the filters.")
+                else:
+                    billing_chart = (
+                        alt.Chart(data["billing"])
+                        .mark_bar(cornerRadiusTopRight=7, cornerRadiusBottomRight=7)
+                        .encode(
+                            y=alt.Y("payment_status:N", sort="-x", title=None),
+                            x=alt.X("total_amount_jod:Q", title="Amount (JOD)"),
+                            color=alt.Color("payment_status:N", title="Status"),
+                            tooltip=["payment_status", "invoices", "total_amount_jod"],
+                        )
+                        .properties(height=330, background="transparent")
                     )
-                    .properties(height=330, background="transparent")
-                )
-                st.altair_chart(support_chart, use_container_width=True)
+                    st.altair_chart(billing_chart, use_container_width=True)
+        with right:
+            with st.container(border=True):
+                render_section_title("Invoice aging")
+                if data["billing_aging"].empty:
+                    st.info("No invoice aging data matched the filters.")
+                else:
+                    aging_chart = (
+                        alt.Chart(data["billing_aging"])
+                        .mark_bar(cornerRadiusTopLeft=7, cornerRadiusTopRight=7)
+                        .encode(
+                            x=alt.X("aging_bucket:N", title=None),
+                            y=alt.Y("amount_jod:Q", title="Amount (JOD)"),
+                            color=alt.value(palette["warning"]),
+                            tooltip=["aging_bucket", "invoices", "amount_jod"],
+                        )
+                        .properties(height=330, background="transparent")
+                    )
+                    st.altair_chart(aging_chart, use_container_width=True)
 
-    with st.container(border=True):
-        render_section_title("Campaign conversion leaders")
-        if data["campaigns"].empty:
-            st.info("No campaigns matched the selected campaign filters.")
-        else:
-            campaign_chart = (
-                alt.Chart(data["campaigns"])
-                .mark_bar(cornerRadiusTopRight=7, cornerRadiusBottomRight=7)
-                .encode(
-                    y=alt.Y("campaign_name:N", sort="-x", title=None),
-                    x=alt.X("conversion_rate:Q", title="Conversion rate (%)"),
-                    color=alt.Color("campaign_type:N", title="Type"),
-                    tooltip=["campaign_name", "campaign_type", "target_segment", "total_sent", "total_converted", "conversion_rate", "revenue_generated_jod"],
+        with st.container(border=True):
+            render_section_title("Value segments")
+            st.dataframe(data["value_segments"], use_container_width=True, hide_index=True)
+
+    elif selected_lens == "Customer experience":
+        left, right = st.columns(2)
+        with left:
+            with st.container(border=True):
+                render_section_title("Complaints by category and severity")
+                if data["complaints"].empty:
+                    st.info("No complaints matched the filters.")
+                else:
+                    complaint_chart = (
+                        alt.Chart(data["complaints"])
+                        .mark_bar(cornerRadiusTopRight=5, cornerRadiusBottomRight=5)
+                        .encode(
+                            y=alt.Y("complaint_category:N", sort="-x", title=None),
+                            x=alt.X("sum(complaints):Q", title="Complaints"),
+                            color=alt.Color("severity:N", title="Severity"),
+                            tooltip=["complaint_category", "severity", "complaints"],
+                        )
+                        .properties(height=330, background="transparent")
+                    )
+                    st.altair_chart(complaint_chart, use_container_width=True)
+        with right:
+            with st.container(border=True):
+                render_section_title("Support sentiment by channel")
+                if data["support_sentiment"].empty:
+                    st.info("No support interactions matched the filters.")
+                else:
+                    support_chart = (
+                        alt.Chart(data["support_sentiment"])
+                        .mark_bar(cornerRadiusTopRight=5, cornerRadiusBottomRight=5)
+                        .encode(
+                            y=alt.Y("channel:N", sort="-x", title=None),
+                            x=alt.X("sum(interactions):Q", title="Interactions"),
+                            color=alt.Color("customer_sentiment:N", title="Sentiment"),
+                            tooltip=["channel", "customer_sentiment", "interactions"],
+                        )
+                        .properties(height=330, background="transparent")
+                    )
+                    st.altair_chart(support_chart, use_container_width=True)
+        with st.container(border=True):
+            render_section_title("Satisfaction pulse")
+            st.dataframe(data["satisfaction"], use_container_width=True, hide_index=True)
+
+    elif selected_lens == "Campaign performance":
+        with st.container(border=True):
+            render_section_title("Campaign conversion leaders")
+            if data["campaigns"].empty:
+                st.info("No campaigns matched the selected campaign filters.")
+            else:
+                campaign_chart = (
+                    alt.Chart(data["campaigns"])
+                    .mark_bar(cornerRadiusTopRight=7, cornerRadiusBottomRight=7)
+                    .encode(
+                        y=alt.Y("campaign_name:N", sort="-x", title=None),
+                        x=alt.X("conversion_rate:Q", title="Conversion rate (%)"),
+                        color=alt.Color("campaign_type:N", title="Type"),
+                        tooltip=["campaign_name", "campaign_type", "target_segment", "total_sent", "total_converted", "conversion_rate", "revenue_generated_jod"],
+                    )
+                    .properties(height=360, background="transparent")
                 )
-                .properties(height=350, background="transparent")
-            )
-            st.altair_chart(campaign_chart, use_container_width=True)
+                st.altair_chart(campaign_chart, use_container_width=True)
+                st.dataframe(data["campaigns"], use_container_width=True, hide_index=True)
+
+    else:
+        left, right = st.columns(2)
+        with left:
+            with st.container(border=True):
+                render_section_title("Data usage mix")
+                if data["usage_mix"].empty:
+                    st.info("No usage sessions matched the filters.")
+                else:
+                    usage_chart = (
+                        alt.Chart(data["usage_mix"])
+                        .mark_bar(cornerRadiusTopRight=5, cornerRadiusBottomRight=5)
+                        .encode(
+                            y=alt.Y("app_category:N", sort="-x", title=None),
+                            x=alt.X("sum(data_gb):Q", title="Data used (GB)"),
+                            color=alt.Color("network_type:N", title="Network"),
+                            tooltip=["app_category", "network_type", "sessions", "data_gb", "usage_revenue_jod"],
+                        )
+                        .properties(height=340, background="transparent")
+                    )
+                    st.altair_chart(usage_chart, use_container_width=True)
+        with right:
+            with st.container(border=True):
+                render_section_title("Network hotspots")
+                if data["network_hotspots"].empty:
+                    st.info("No network events available.")
+                else:
+                    network_chart = (
+                        alt.Chart(data["network_hotspots"])
+                        .mark_bar(cornerRadiusTopRight=5, cornerRadiusBottomRight=5)
+                        .encode(
+                            y=alt.Y("city:N", sort="-x", title=None),
+                            x=alt.X("sum(affected_customers):Q", title="Affected customers"),
+                            color=alt.Color("severity:N", title="Severity"),
+                            tooltip=["city", "technology", "capacity_level", "event_type", "severity", "events", "affected_customers"],
+                        )
+                        .properties(height=340, background="transparent")
+                    )
+                    st.altair_chart(network_chart, use_container_width=True)
 
     with st.container(border=True):
         render_section_title("Filtered customer export preview")
@@ -2114,17 +3155,22 @@ def render_dynamic_analytics_page(db_path: str, model_name: str, api_key: str) -
         with st.expander("Generate AI executive brief from current filters"):
             brief_prompt = st.text_area(
                 "Brief instruction",
-                value="Summarize the most important business risks and recommended actions from this filtered dashboard.",
+                value=f"Summarize the most important business risks and recommended actions from the {selected_lens.lower()} dashboard.",
                 height=90,
             )
             if st.button("Generate executive brief", type="primary", use_container_width=True):
                 context = {
+                    "lens": selected_lens,
                     "kpis": data["kpis"].to_dict(orient="records"),
+                    "comparison": data["comparison"].head(10).to_dict(orient="records"),
                     "top_cities": data["city_customers"].head(5).to_dict(orient="records"),
                     "churn_mix": data["churn_mix"].to_dict(orient="records"),
                     "campaigns": data["campaigns"].head(5).to_dict(orient="records"),
                     "complaints": data["complaints"].head(8).to_dict(orient="records"),
                     "billing": data["billing"].to_dict(orient="records"),
+                    "usage_mix": data["usage_mix"].head(8).to_dict(orient="records"),
+                    "network_hotspots": data["network_hotspots"].head(8).to_dict(orient="records"),
+                    "action_queue": data["action_queue"].head(8).to_dict(orient="records"),
                 }
                 loading_slot = st.empty()
                 with loading_slot.container():
@@ -2143,7 +3189,7 @@ def render_dynamic_analytics_page(db_path: str, model_name: str, api_key: str) -
                     with st.spinner("Generating executive brief..."):
                         model = create_chat_model(model_name=model_name, temperature=0.1, openai_api_key=api_key)
                         response = model.invoke([
-                            {"role": "system", "content": "You are an executive telecom analytics advisor. Use only the provided dashboard data. Be concise and action-oriented."},
+                            {"role": "system", "content": "You are an executive telecom analytics advisor. Use only the provided dashboard data. Be concise, business-friendly, and action-oriented."},
                             {"role": "user", "content": f"Instruction: {brief_prompt}\n\nDashboard data:\n{context}"},
                         ])
                     loading_slot.empty()
@@ -2154,30 +3200,243 @@ def render_dynamic_analytics_page(db_path: str, model_name: str, api_key: str) -
                     st.error(f"Could not generate brief: {type(exc).__name__}: {exc}")
 
 
+
+def render_action_center_page(db_path: str) -> None:
+    render_hero(
+        "Action Center",
+        "Prioritized and targeted actions",
+        "Turn churn, billing, support, campaign, and network records into practical call lists and investigation queues.",
+        "Decision assistant",
+    )
+
+    options = get_filter_options(db_path)
+    with st.expander("Action filters", expanded=True):
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            selected_cities = st.multiselect("Cities", options=options["cities"], key="action_cities")
+            selected_customer_segments = st.multiselect("Customer segments", options=options["customer_segments"], key="action_customer_segments")
+        with c2:
+            selected_value_segments = st.multiselect("Value segments", options=options["value_segments"], key="action_value_segments")
+            selected_risks = st.multiselect("Churn risk", options=options["risk_levels"], default=["High", "Medium"], key="action_risks")
+        with c3:
+            selected_services = st.multiselect("Service type", options=options["service_types"], key="action_services")
+            min_arpu = st.slider("Minimum ARPU (JOD)", 0.0, 100.0, 0.0, step=1.0, key="action_min_arpu")
+            min_churn_score = st.slider("Minimum churn score", 0.0, 1.0, 0.0, step=0.05, key="action_min_churn")
+            top_n = st.slider("Actions to show", 5, 25, 10, key="action_top_n")
+
+    data = get_action_center_data(
+        db_path=db_path,
+        cities=tuple(selected_cities),
+        customer_segments=tuple(selected_customer_segments),
+        value_segments=tuple(selected_value_segments),
+        risk_levels=tuple(selected_risks),
+        service_types=tuple(selected_services),
+        min_arpu=float(min_arpu),
+        min_churn_score=float(min_churn_score),
+        top_n=int(top_n),
+    )
+
+    overview = data["overview"].iloc[0]
+    render_metric_grid(
+        [
+            ("Customers in scope", f"{int(overview.get('customers_in_scope') or 0):,}", "Current action universe"),
+            ("High-risk customers", f"{int(overview.get('high_risk_customers') or 0):,}", "Likely retention attention"),
+            ("Open billing", f"{compact_number(overview.get('open_billing_jod'), 1, ' JOD')}", "Collections exposure"),
+            ("Severe complaints", f"{int(overview.get('severe_complaints') or 0):,}", "High or critical complaint records"),
+        ]
+    )
+
+    st.markdown(
+        """
+        <div class="card">
+            <div class="section-title">How to use this page</div>
+            <div class="page-copy">
+                Each card is written for a business user: who to act on, why it matters, the key evidence, and the recommended next step.
+                Use the tabs as ready-made operating queues for retention, collections, customer experience, campaign retargeting, and network operations.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    retention_tab, collections_tab, experience_tab, campaign_tab, network_tab = st.tabs(
+        ["Retention rescue", "Collections", "Experience recovery", "Campaign retargeting", "Network operations"]
+    )
+
+    with retention_tab:
+        if data["retention"].empty:
+            st.info("No retention actions matched the selected filters.")
+        else:
+            for _, row in data["retention"].iterrows():
+                render_action_card(
+                    title=f"{row['full_name']} · {row['city']}",
+                    subtitle=f"{row['risk_level']} churn risk. Main reason: {row['main_risk_reason'] or 'not specified'}.",
+                    priority_score=float(row.get("priority_score") or 0),
+                    stats=[
+                        ("Customer ID", int(row.get("customer_id") or 0)),
+                        ("ARPU", f"{float(row.get('arpu_jod') or 0):.2f} JOD"),
+                        ("Churn", f"{float(row.get('churn_score') or 0):.2f}"),
+                        ("Complaints", int(row.get("complaint_count") or 0)),
+                    ],
+                    action=str(row.get("recommended_action") or "Call the customer with a service recovery or retention offer"),
+                )
+            csv = data["retention"].to_csv(index=False).encode("utf-8")
+            st.download_button("Download retention queue", csv, "retention_action_queue.csv", "text/csv", use_container_width=True)
+
+    with collections_tab:
+        if data["collections"].empty:
+            st.info("No collections actions matched the selected filters.")
+        else:
+            for _, row in data["collections"].iterrows():
+                render_action_card(
+                    title=f"{row['full_name']} · {row['city']}",
+                    subtitle=f"Open billing exposure with max overdue age of {int(row.get('max_days_overdue') or 0)} days.",
+                    priority_score=min(float(row.get("open_billing_jod") or 0) + float(row.get("max_days_overdue") or 0), 100),
+                    stats=[
+                        ("Open bill", f"{float(row.get('open_billing_jod') or 0):.2f} JOD"),
+                        ("Max overdue", f"{int(row.get('max_days_overdue') or 0)} days"),
+                        ("Risk", row.get("risk_level") or "N/A"),
+                        ("Value", row.get("value_segment") or "N/A"),
+                    ],
+                    action="Offer a payment plan, clarify invoice items, or route to collections based on policy",
+                )
+            csv = data["collections"].to_csv(index=False).encode("utf-8")
+            st.download_button("Download collections queue", csv, "collections_action_queue.csv", "text/csv", use_container_width=True)
+
+    with experience_tab:
+        if data["experience_recovery"].empty:
+            st.info("No customer experience recovery actions matched the selected filters.")
+        else:
+            for _, row in data["experience_recovery"].iterrows():
+                render_action_card(
+                    title=f"{row['full_name']} · {row['city']}",
+                    subtitle="Customer has severe complaints or negative support interactions that may damage loyalty.",
+                    priority_score=float(row.get("priority_score") or 0),
+                    stats=[
+                        ("Severe complaints", int(row.get("severe_complaints") or 0)),
+                        ("Negative support", int(row.get("negative_support_cases") or 0)),
+                        ("Churn", f"{float(row.get('churn_score') or 0):.2f}"),
+                        ("ARPU", f"{float(row.get('arpu_jod') or 0):.2f} JOD"),
+                    ],
+                    action="Open a service recovery case and confirm whether the original issue was resolved",
+                )
+            csv = data["experience_recovery"].to_csv(index=False).encode("utf-8")
+            st.download_button("Download experience recovery queue", csv, "experience_recovery_queue.csv", "text/csv", use_container_width=True)
+
+    with campaign_tab:
+        if data["campaign_retention"].empty:
+            st.info("No campaign retargeting opportunities matched the selected filters.")
+        else:
+            for _, row in data["campaign_retention"].iterrows():
+                missed = int(row.get("not_converted") or 0)
+                contacted = int(row.get("contacted_customers") or 0)
+                render_action_card(
+                    title=f"{row['campaign_name']} · {row['channel']}",
+                    subtitle=f"{row['campaign_type']} campaign targeting {row['target_segment']}.",
+                    priority_score=float(row.get("missed_rate") or 0),
+                    stats=[
+                        ("Contacted", contacted),
+                        ("Not converted", missed),
+                        ("Missed rate", f"{float(row.get('missed_rate') or 0):.1f}%"),
+                        ("Won revenue", f"{float(row.get('won_revenue_jod') or 0):.0f} JOD"),
+                    ],
+                    action="Retarget non-converters with a clearer offer, different channel, or smaller incentive test",
+                )
+            st.dataframe(data["campaign_retention"], use_container_width=True, hide_index=True)
+
+    with network_tab:
+        if data["network"].empty:
+            st.info("No network operation records are available.")
+        else:
+            for _, row in data["network"].iterrows():
+                severity_weight = {"Critical": 100, "High": 80, "Medium": 55, "Low": 30}.get(str(row.get("severity")), 35)
+                render_action_card(
+                    title=f"{row['city']} · {row['tower_name']}",
+                    subtitle=f"{row['event_type']} on {row['technology']} with {row['capacity_level']} capacity.",
+                    priority_score=severity_weight,
+                    stats=[
+                        ("Severity", row.get("severity") or "N/A"),
+                        ("Events", int(row.get("events") or 0)),
+                        ("Affected", f"{int(row.get('affected_customers') or 0):,}"),
+                        ("Technology", row.get("technology") or "N/A"),
+                    ],
+                    action="Route to network operations and cross-check nearby complaints before customer callbacks",
+                )
+            st.dataframe(data["network"], use_container_width=True, hide_index=True)
+
+
+
+
 def render_rag_search_page(db_path: str, model_name: str, api_key: str) -> None:
     render_hero(
         "Evidence Search",
-        "Find supporting customer evidence",
-        "Search across Customer 360 records, inspect the matching details, then optionally generate an evidence-grounded answer with source numbers.",
+        "Build a useful evidence story",
+        "Use guided business playbooks or your own keywords to collect records, customer context, and source-backed explanations without writing SQL.",
         "Evidence retrieval",
     )
 
     searchable = get_searchable_tables(db_path)
     table_options = list(searchable.keys())
-    with st.expander("Search controls", expanded=True):
-        c1, c2, c3 = st.columns([1.5, 1, 1])
-        with c1:
-            rag_query = st.text_input("Search question or keywords", value=st.session_state.get("rag_query", "high risk churn complaints irbid"))
-            st.session_state.rag_query = rag_query
-        with c2:
-            selected_tables = st.multiselect("Search categories", options=table_options, default=[])
-            require_all = st.checkbox("Match every keyword", value=False)
-        with c3:
-            limit_per_table = st.slider("Results per category", 3, 20, 8)
-            max_results = st.slider("Maximum results", 10, 60, 30)
 
-    search_clicked = st.button("Search database evidence", type="primary", use_container_width=True)
-    if search_clicked or "rag_results" not in st.session_state:
+    if "rag_query" not in st.session_state:
+        st.session_state.rag_query = "High churn risk frequent support complaints negative sentiment retention action"
+    if "rag_area_widget" not in st.session_state:
+        st.session_state.rag_area_widget = ["Customer & churn", "Support & complaints"]
+
+    st.markdown('<div class="section-title">Guided search playbooks</div>', unsafe_allow_html=True)
+    playbook_cols = st.columns(3)
+    for idx, playbook in enumerate(EVIDENCE_PLAYBOOKS):
+        with playbook_cols[idx % 3]:
+            st.markdown(
+                f"""
+                <div class="playbook-card">
+                    <div class="playbook-title">{safe_html(playbook['title'])}</div>
+                    <div class="playbook-copy">{safe_html(playbook['description'])}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            if st.button(f"Use: {playbook['title']}", key=f"rag_playbook_{idx}", use_container_width=True):
+                st.session_state.rag_query = playbook["query"]
+                st.session_state.rag_area_widget = [playbook["area"]]
+                st.session_state.pop("rag_results", None)
+                st.rerun()
+
+    with st.expander("Search controls", expanded=True):
+        c1, c2, c3 = st.columns([1.5, 1.1, 1])
+        with c1:
+            rag_query = st.text_input(
+                "Search question or keywords",
+                key="rag_query",
+                help="Use business language. Example: high risk churn complaints in Irbid.",
+            )
+            st.caption("The search ranks matching records and enriches customer-related results with customer context.")
+        with c2:
+            selected_areas = st.multiselect(
+                "Business areas",
+                options=list(EVIDENCE_TABLE_AREAS.keys()),
+                key="rag_area_widget",
+            )
+            advanced_tables = st.multiselect(
+                "Optional specific source tables",
+                options=table_options,
+                default=[],
+                format_func=table_label,
+            )
+        with c3:
+            require_all = st.checkbox("Match every keyword", value=False)
+            limit_per_table = st.slider("Results per source", 3, 20, 8)
+            max_results = st.slider("Maximum evidence cards", 10, 80, 35)
+
+    selected_tables = ordered_unique(
+        [table for area in selected_areas for table in EVIDENCE_TABLE_AREAS.get(area, [])]
+        + list(advanced_tables)
+    )
+    selected_tables = [table for table in selected_tables if table in searchable]
+
+    search_key = (rag_query, tuple(selected_tables), int(limit_per_table), int(max_results), bool(require_all))
+    search_clicked = st.button("Search evidence", type="primary", use_container_width=True)
+    if search_clicked or st.session_state.get("rag_last_search_key") != search_key or "rag_results" not in st.session_state:
         results_df = rag_search_database(
             db_path=db_path,
             query=rag_query,
@@ -2187,27 +3446,83 @@ def render_rag_search_page(db_path: str, model_name: str, api_key: str) -> None:
             require_all_terms=bool(require_all),
         )
         st.session_state.rag_results = results_df
+        st.session_state.rag_last_search_key = search_key
     else:
         results_df = st.session_state.rag_results
 
     if results_df.empty:
-        st.info("No evidence found. Try fewer keywords, turn off 'Match every keyword', or search more categories.")
+        st.info("No evidence found. Try a guided playbook, fewer keywords, turn off 'Match every keyword', or search more business areas.")
         return
+
+    strong_matches = int((results_df["confidence"] == "Strong match").sum()) if "confidence" in results_df else 0
+    customers_found = int(results_df["customer_id"].dropna().nunique()) if "customer_id" in results_df else 0
+    top_area = results_df["business_area"].value_counts().index[0] if "business_area" in results_df and not results_df.empty else "N/A"
+    top_source = results_df["table_label"].value_counts().index[0] if "table_label" in results_df and not results_df.empty else "N/A"
 
     st.markdown(
         f"""
-        <div class="card">
-            <div class="section-title">Retrieved evidence</div>
-            <div class="page-copy">Found {len(results_df):,} matching records. Results are ranked by keyword and phrase matches, then used as context for the optional answer.</div>
+        <div class="evidence-summary-grid">
+            <div class="evidence-summary-card">
+                <div class="evidence-summary-label">Evidence cards</div>
+                <div class="evidence-summary-value">{len(results_df):,}</div>
+            </div>
+            <div class="evidence-summary-card">
+                <div class="evidence-summary-label">Strong matches</div>
+                <div class="evidence-summary-value">{strong_matches:,}</div>
+            </div>
+            <div class="evidence-summary-card">
+                <div class="evidence-summary-label">Linked customers</div>
+                <div class="evidence-summary-value">{customers_found:,}</div>
+            </div>
+            <div class="evidence-summary-card">
+                <div class="evidence-summary-label">Top source</div>
+                <div class="evidence-summary-value">{safe_html(top_source)}</div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
+    left, right = st.columns([1.2, 1])
+    with left:
+        with st.container(border=True):
+            render_section_title("Evidence mix by business area")
+            area_counts = results_df.groupby("business_area", as_index=False).size().rename(columns={"size": "records"})
+            area_chart = (
+                alt.Chart(area_counts)
+                .mark_bar(cornerRadiusTopRight=7, cornerRadiusBottomRight=7)
+                .encode(
+                    y=alt.Y("business_area:N", sort="-x", title=None),
+                    x=alt.X("records:Q", title="Evidence records"),
+                    color=alt.value(chart_palette()["accent"]),
+                    tooltip=["business_area", "records"],
+                )
+                .properties(height=240, background="transparent")
+            )
+            st.altair_chart(area_chart, use_container_width=True)
+    with right:
+        with st.container(border=True):
+            render_section_title("Search interpretation")
+            st.markdown(
+                f"""
+                <div class="page-copy">
+                    Your search is currently strongest in <strong>{safe_html(top_area)}</strong>. 
+                    Use the source numbers in the generated answer to trace every claim back to an evidence card.
+                    Customer-linked records can be opened in Customer 360 for a complete profile before action.
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
     if api_key:
-        with st.expander("Generate answer from retrieved evidence", expanded=False):
-            rag_question = st.text_area("Question to answer", value=rag_query, height=90)
-            if st.button("Generate grounded answer", type="primary", use_container_width=True):
+        with st.expander("Generate an evidence-grounded answer", expanded=True):
+            rag_question = st.text_area(
+                "Question to answer from the retrieved evidence",
+                value=rag_query,
+                height=90,
+                help="The answer will use only the evidence cards shown below and cite source numbers.",
+            )
+            if st.button("Generate evidence story", type="primary", use_container_width=True):
                 context = build_rag_context(results_df)
                 loading_slot = st.empty()
                 with loading_slot.container():
@@ -2215,7 +3530,7 @@ def render_rag_search_page(db_path: str, model_name: str, api_key: str) -> None:
                         """
                         <div class="card-subtle">
                             <div class="loading-row">
-                                <span>Generating grounded answer</span>
+                                <span>Turning evidence into a business story</span>
                                 <span class="loading-dots"><span></span><span></span><span></span></span>
                             </div>
                         </div>
@@ -2223,30 +3538,55 @@ def render_rag_search_page(db_path: str, model_name: str, api_key: str) -> None:
                         unsafe_allow_html=True,
                     )
                 try:
-                    with st.spinner("Generating grounded answer..."):
+                    with st.spinner("Generating evidence story..."):
                         answer = answer_with_rag(rag_question, context, model_name, api_key)
                     loading_slot.empty()
-                    st.markdown("#### Grounded answer")
+                    st.markdown("#### Evidence story")
                     st.markdown(answer)
                 except Exception as exc:
                     loading_slot.empty()
                     st.error(f"Answer generation failed: {type(exc).__name__}: {exc}")
     else:
-        st.warning("AI answers are currently unavailable, so this page is showing search results only.")
+        st.warning("AI answers are currently unavailable, so this page is showing enriched evidence cards only.")
 
-    for idx, row in results_df.iterrows():
-        st.markdown(
-            f"""
-            <div class="result-card">
-                <div class="result-meta"><span class="source-badge">[{idx + 1}] {safe_html(row['table'])}</span><span>rowid {int(row['rowid'])}</span><span>score {int(row['score'])}</span></div>
-                <div class="page-copy">{safe_html(row['snippet'])}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    area_order = results_df["business_area"].drop_duplicates().tolist()
+    for area in area_order:
+        area_df = results_df[results_df["business_area"] == area]
+        with st.expander(f"{area} · {len(area_df)} evidence card(s)", expanded=area == area_order[0]):
+            for idx, row in area_df.iterrows():
+                matched_chips = "".join(
+                    f'<span class="match-chip">{safe_html(term.strip())}</span>'
+                    for term in str(row.get("matched_terms") or "").split(",")
+                    if term.strip()
+                )
+                customer_note = f"<div class='customer-link-note'>{safe_html(row['customer_context'])}</div>" if str(row.get("customer_context") or "").strip() else ""
+                priority_class = "priority-high" if row.get("confidence") == "Strong match" else "priority-medium" if row.get("confidence") == "Good match" else "priority-low"
+                st.markdown(
+                    f"""
+                    <div class="evidence-card">
+                        <div class="evidence-title-row">
+                            <div>
+                                <div class="evidence-title">[{idx + 1}] {safe_html(row.get('title') or row.get('table_label'))}</div>
+                                <div class="evidence-source-line">{safe_html(row.get('table_label'))} · {safe_html(row.get('business_area'))} · rowid {int(row['rowid'])}</div>
+                            </div>
+                            <div class="priority-badge {priority_class}">{safe_html(row.get('confidence'))}</div>
+                        </div>
+                        <div class="evidence-body">{safe_html(row['snippet'])}</div>
+                        {customer_note}
+                        <div style="margin-top:.45rem;">{matched_chips}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                if pd.notna(row.get("customer_id")):
+                    cid = int(row["customer_id"])
+                    if st.button(f"Open customer {cid} in Customer 360", key=f"open_customer_from_evidence_{idx}_{cid}", use_container_width=True):
+                        st.session_state.customer_search_term = str(cid)
+                        st.session_state.app_page = "Customer 360"
+                        st.rerun()
 
     csv = results_df.to_csv(index=False).encode("utf-8")
-    st.download_button("Download retrieved evidence CSV", csv, "rag_evidence.csv", "text/csv", use_container_width=True)
+    st.download_button("Download evidence story CSV", csv, "customer_360_evidence_story.csv", "text/csv", use_container_width=True)
 
 
 def render_customer_360_page(db_path: str) -> None:
@@ -2261,7 +3601,7 @@ def render_customer_360_page(db_path: str) -> None:
     with st.expander("Lookup filters", expanded=True):
         c1, c2, c3 = st.columns([1.6, 1, 1])
         with c1:
-            term = st.text_input("Search term", placeholder="Name, email, phone, MSISDN, or customer ID")
+            term = st.text_input("Search term", placeholder="Name, email, phone, MSISDN, or customer ID", key="customer_search_term")
         with c2:
             city = st.selectbox("City", options=[""] + options["cities"])
         with c3:
@@ -2360,10 +3700,11 @@ def render_help_page() -> None:
             <div class="section-title">Recommended workflow</div>
             <div class="page-copy">
                 1. Start with <strong>Executive Analytics</strong> to narrow down a segment, city, risk level, or campaign.<br>
-                2. Use <strong>Evidence Search</strong> to retrieve supporting records before asking for a grounded answer.<br>
-                3. Use <strong>AI Chat</strong> for broader analysis and interpretation.<br>
-                4. Use <strong>Customer 360</strong> when you need to investigate one customer before a retention or support action.<br>
-                5. Use <strong>Prompt Library</strong> for ready-made questions when you need a starting point.
+                2. Use <strong>Action Center</strong> to turn the segment into retention, collections, CX, campaign, or network queues.<br>
+                3. Use <strong>Evidence Search</strong> to retrieve supporting records before asking for a grounded answer.<br>
+                4. Use <strong>AI Chat</strong> for broader analysis and interpretation.<br>
+                5. Use <strong>Customer 360</strong> when you need to investigate one customer before a retention or support action.<br>
+                6. Use <strong>Prompt Library</strong> for ready-made questions when you need a starting point.
             </div>
         </div>
         <div class="card">
@@ -2371,6 +3712,7 @@ def render_help_page() -> None:
             <div class="page-copy">
                 <strong>AI Chat</strong> answers business questions in natural language.<br>
                 <strong>Executive Analytics</strong> shows trends, risks, campaign results, billing status, and customer slices.<br>
+                <strong>Action Center</strong> converts analytics into prioritized business queues for non-technical users.<br>
                 <strong>Evidence Search</strong> finds matching records before generating a grounded answer.<br>
                 <strong>Customer 360</strong> opens a single customer's profile, billing, support, and device history.<br>
                 <strong>Prompt Library</strong> gives reusable questions for churn, revenue, campaigns, support, and network analysis.
@@ -2442,6 +3784,8 @@ def main() -> None:
         render_chat_page(api_key, default_db, model_name)
     elif active_page == "Executive Analytics":
         render_dynamic_analytics_page(default_db, model_name, api_key)
+    elif active_page == "Action Center":
+        render_action_center_page(default_db)
     elif active_page == "Evidence Search":
         render_rag_search_page(default_db, model_name, api_key)
     elif active_page == "Customer 360":

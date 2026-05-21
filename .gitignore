@@ -1,0 +1,10 @@
+# Local secrets
+secrets.toml
+.streamlit/secrets.toml
+streamlit_sql_agent_app/secrets.toml
+streamlit_sql_agent_app/.streamlit/secrets.toml
+
+# Common local environment files
+.env
+.env.*
+!.env.example
